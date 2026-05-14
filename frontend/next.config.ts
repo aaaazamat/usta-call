@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Pastki chap burchakdagi "N" dev-tool belgisini yashirish
+  devIndicators: false,
 };
 
 export default nextConfig;

@@ -3,6 +3,7 @@ import { Briefcase, MapPin, Star } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { getCategoryIcon } from "@/lib/category-icons";
 import type { MasterListItem } from "@/lib/api/types";
 
 function formatRate(from: string | null, to: string | null): string | null {
@@ -21,15 +22,23 @@ export function MasterCard({ master }: { master: MasterListItem }) {
   return (
     <Link
       href={`/masters/${master.id}`}
-      className="group flex flex-col rounded-xl border bg-card p-5 transition hover:border-foreground/30 hover:shadow-sm"
+      className="card-lift group flex flex-col rounded-2xl border bg-card p-5 relative overflow-hidden"
     >
+      {/* Gradient hover accent */}
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+
       <div className="flex items-start gap-4">
-        <Avatar className="h-14 w-14">
-          <AvatarImage src={master.user.avatar ?? undefined} alt={master.user.full_name} />
-          <AvatarFallback className="text-base">
-            {master.user.full_name?.[0]?.toUpperCase() ?? "U"}
-          </AvatarFallback>
-        </Avatar>
+        <div className="relative">
+          <Avatar className="h-14 w-14 ring-2 ring-background shadow-sm">
+            <AvatarImage src={master.user.avatar ?? undefined} alt={master.user.full_name} />
+            <AvatarFallback className="text-base font-medium bg-gradient-to-br from-primary/10 to-purple-500/10">
+              {master.user.full_name?.[0]?.toUpperCase() ?? "U"}
+            </AvatarFallback>
+          </Avatar>
+          {master.is_available && (
+            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-green-500 ring-2 ring-background" />
+          )}
+        </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
             {master.user.full_name || "Usta"}
@@ -38,7 +47,9 @@ export function MasterCard({ master }: { master: MasterListItem }) {
             {hasRating ? (
               <span className="inline-flex items-center gap-1">
                 <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                <span className="text-foreground font-medium">{rating.toFixed(1)}</span>
+                <span className="text-foreground font-semibold">
+                  {rating.toFixed(1)}
+                </span>
                 <span>({master.reviews_count_cache})</span>
               </span>
             ) : (
@@ -51,37 +62,52 @@ export function MasterCard({ master }: { master: MasterListItem }) {
           </div>
         </div>
         {master.is_available && (
-          <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+          <Badge
+            variant="secondary"
+            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 shrink-0"
+          >
             Ochiq
           </Badge>
         )}
       </div>
 
       {master.bio && (
-        <p className="text-sm text-muted-foreground mt-3 line-clamp-2">{master.bio}</p>
+        <p className="text-sm text-muted-foreground mt-3 line-clamp-2 leading-relaxed">
+          {master.bio}
+        </p>
       )}
 
       {master.categories.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-3">
-          {master.categories.slice(0, 3).map((c) => (
-            <Badge key={c.id} variant="outline" className="font-normal">
-              {c.name}
-            </Badge>
-          ))}
+          {master.categories.slice(0, 3).map((c) => {
+            const info = getCategoryIcon(c.slug);
+            const Icon = info.icon;
+            return (
+              <span
+                key={c.id}
+                className={`inline-flex items-center gap-1 ${info.bg} ${info.color} px-2 py-0.5 rounded-full text-xs font-medium`}
+              >
+                <Icon className="h-3 w-3" />
+                {c.name}
+              </span>
+            );
+          })}
           {master.categories.length > 3 && (
-            <Badge variant="outline" className="font-normal">
+            <span className="inline-flex items-center bg-muted text-muted-foreground px-2 py-0.5 rounded-full text-xs">
               +{master.categories.length - 3}
-            </Badge>
+            </span>
           )}
         </div>
       )}
 
       <div className="mt-4 pt-4 border-t flex items-center justify-between text-sm">
-        <div className="flex items-center gap-1 text-muted-foreground">
+        <div className="flex items-center gap-1 text-muted-foreground text-xs">
           <MapPin className="h-3.5 w-3.5" />
-          {master.experience_years > 0 ? `${master.experience_years}+ yil tajriba` : "Yangi usta"}
+          {master.experience_years > 0
+            ? `${master.experience_years}+ yil tajriba`
+            : "Yangi usta"}
         </div>
-        {rate && <div className="font-medium">{rate}</div>}
+        {rate && <div className="font-semibold text-sm">{rate}</div>}
       </div>
     </Link>
   );
@@ -89,17 +115,17 @@ export function MasterCard({ master }: { master: MasterListItem }) {
 
 export function MasterCardSkeleton() {
   return (
-    <div className="rounded-xl border bg-card p-5 animate-pulse">
+    <div className="rounded-2xl border bg-card p-5">
       <div className="flex items-start gap-4">
-        <div className="h-14 w-14 rounded-full bg-muted" />
+        <div className="h-14 w-14 rounded-full bg-muted shimmer" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-3/4 bg-muted rounded" />
-          <div className="h-3 w-1/2 bg-muted rounded" />
+          <div className="h-4 w-3/4 bg-muted rounded shimmer" />
+          <div className="h-3 w-1/2 bg-muted rounded shimmer" />
         </div>
       </div>
       <div className="mt-3 space-y-2">
-        <div className="h-3 w-full bg-muted rounded" />
-        <div className="h-3 w-5/6 bg-muted rounded" />
+        <div className="h-3 w-full bg-muted rounded shimmer" />
+        <div className="h-3 w-5/6 bg-muted rounded shimmer" />
       </div>
     </div>
   );

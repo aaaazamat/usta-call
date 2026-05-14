@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LogOut, User as UserIcon, Wrench } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const MASTER_LINKS: NavLink[] = [
 ];
 
 export function Navbar() {
+  const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -50,33 +52,57 @@ export function Navbar() {
       : CLIENT_LINKS;
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Wrench className="h-5 w-5 text-primary" />
-          <span>usta-call</span>
+    <header className="sticky top-0 z-40 border-b border-border/40 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <Container className="flex h-20 items-center justify-between">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="flex items-center gap-3 font-bold text-xl group"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-500 to-pink-500 rounded-2xl blur-md opacity-50 group-hover:opacity-80 transition-opacity" />
+            <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 text-white shadow-md group-hover:scale-105 transition-transform">
+              <Wrench className="h-6 w-6" />
+            </div>
+          </div>
+          <span className="hidden sm:inline text-2xl tracking-tight">
+            usta<span className="gradient-text">-call</span>
+          </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {link.label}
-            </Link>
-          ))}
+        {/* Asosiy nav linklari */}
+        <nav className="hidden md:flex items-center gap-1">
+          {links.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  "relative px-4 py-2.5 rounded-xl text-base font-medium transition-all " +
+                  (active
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/60")
+                }
+              >
+                {link.label}
+                {active && (
+                  <span className="absolute inset-x-4 -bottom-0.5 h-[3px] rounded-full bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="flex items-center gap-2">
+        {/* O'ng tarafdagi tugmalar */}
+        <div className="flex items-center gap-3">
           {user ? (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <Avatar className="h-9 w-9">
+              <DropdownMenuTrigger className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition hover:opacity-80">
+                <Avatar className="h-11 w-11 ring-2 ring-background shadow-sm">
                   <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
-                  <AvatarFallback>
-                    {user.full_name?.[0] ?? <UserIcon className="h-4 w-4" />}
+                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-medium text-base">
+                    {user.full_name?.[0] ?? <UserIcon className="h-5 w-5" />}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
@@ -120,12 +146,19 @@ export function Navbar() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" size="sm" render={<Link href="/login" />}>
+              <Link
+                href="/login"
+                className="hidden sm:inline-flex items-center h-11 px-5 text-base font-medium rounded-xl text-foreground hover:bg-muted transition-colors"
+              >
                 Kirish
-              </Button>
-              <Button size="sm" render={<Link href="/register" />}>
+              </Link>
+              <Link
+                href="/register"
+                className="relative inline-flex items-center h-11 px-6 text-base font-semibold rounded-xl text-white shadow-md hover:shadow-xl transition-all bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:scale-105 active:scale-100"
+              >
+                <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 blur-md opacity-40 -z-10" />
                 Ro&apos;yxatdan o&apos;tish
-              </Button>
+              </Link>
             </>
           )}
         </div>

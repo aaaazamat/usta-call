@@ -7,6 +7,9 @@ django-filter>=24.3
 django-environ>=0.11
 dj-database-url>=2.2
 
+# Admin UI (zamonaviy Tailwind asosidagi admin tema)
+django-unfold>=0.93
+
 # Database
 psycopg[binary]>=3.2
 

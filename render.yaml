@@ -1,17 +1,10 @@
 # Render.com avtomatik konfiguratsiyasi.
-# Render bu faylni o'qib loyihangizni o'zi sozlaydi.
+# Database tashqi servis (Neon.tech) — DATABASE_URL qo'lda kiritiladi.
 #
 # Yaratiladi:
-#   1. Web Service (Django + Daphne ASGI — HTTP va WebSocket)
-#   2. PostgreSQL database (bepul 90 kun)
+#   - Web Service (Django + Daphne ASGI — HTTP va WebSocket)
 #
 # Foydalanish: Render dashboard'ida "New +" → "Blueprint" → repo'ni tanlang.
-
-databases:
-  - name: usta-call-db
-    plan: free
-    databaseName: usta_call
-    user: usta_call
 
 services:
   - type: web
@@ -31,15 +24,14 @@ services:
         generateValue: true
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
+      # Database (Neon.tech) — qo'lda kiritiladi
       - key: DATABASE_URL
-        fromDatabase:
-          name: usta-call-db
-          property: connectionString
+        sync: false
       # AI matching
       - key: AI_PROVIDER
         value: gemini
       - key: GEMINI_API_KEY
-        sync: false      # qo'lda kiritiladi (dashboard'da)
+        sync: false      # qo'lda kiritiladi
       - key: AI_MODEL_GEMINI
         value: gemini-2.5-flash
       # Beta rejim (OTP'siz kirish — sinov uchun)

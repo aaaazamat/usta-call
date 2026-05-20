@@ -1,0 +1,53 @@
+# Render.com avtomatik konfiguratsiyasi.
+# Render bu faylni o'qib loyihangizni o'zi sozlaydi.
+#
+# Yaratiladi:
+#   1. Web Service (Django + Daphne ASGI — HTTP va WebSocket)
+#   2. PostgreSQL database (bepul 90 kun)
+#
+# Foydalanish: Render dashboard'ida "New +" → "Blueprint" → repo'ni tanlang.
+
+databases:
+  - name: usta-call-db
+    plan: free
+    databaseName: usta_call
+    user: usta_call
+
+services:
+  - type: web
+    name: usta-call-backend
+    runtime: python
+    plan: free
+    region: frankfurt    # eng yaqin Render mintaqasi
+    pythonVersion: "3.12"
+    buildCommand: "./build.sh"
+    # Daphne — HTTP + WebSocket'larni qo'llab-quvvatlaydi
+    startCommand: "daphne -b 0.0.0.0 -p $PORT config.asgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: PYTHON_VERSION
+        value: "3.12.0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: usta-call-db
+          property: connectionString
+      # AI matching
+      - key: AI_PROVIDER
+        value: gemini
+      - key: GEMINI_API_KEY
+        sync: false      # qo'lda kiritiladi (dashboard'da)
+      - key: AI_MODEL_GEMINI
+        value: gemini-2.5-flash
+      # Beta rejim (OTP'siz kirish — sinov uchun)
+      - key: BETA_AUTO_LOGIN
+        value: "True"
+      # CORS — Vercel domeni keyinroq qo'shiladi
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: SMS_PROVIDER
+        value: console

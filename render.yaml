@@ -19,7 +19,6 @@ services:
     runtime: python
     plan: free
     region: frankfurt    # eng yaqin Render mintaqasi
-    pythonVersion: "3.12"
     buildCommand: "./build.sh"
     # Daphne — HTTP + WebSocket'larni qo'llab-quvvatlaydi
     startCommand: "daphne -b 0.0.0.0 -p $PORT config.asgi:application"
@@ -27,7 +26,7 @@ services:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings.prod
       - key: PYTHON_VERSION
-        value: "3.12.0"
+        value: "3.12.6"
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS

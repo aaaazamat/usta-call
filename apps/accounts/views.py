@@ -268,6 +268,11 @@ class GoogleLoginView(APIView):
         if not id_token_str:
             return Response({"detail": "id_token kerak"}, status=400)
 
+        # Birinchi marta ro'yxatdan o'tganida tanlangan rol (default: mijoz)
+        requested_role = request.data.get("role") or Role.CLIENT
+        if requested_role not in (Role.CLIENT, Role.MASTER):
+            requested_role = Role.CLIENT
+
         client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")
         if not client_id:
             return Response({"detail": "Google OAuth sozlanmagan"}, status=503)
@@ -289,7 +294,6 @@ class GoogleLoginView(APIView):
             return Response({"detail": "Google ma'lumotlari to'liq emas"}, status=400)
 
         full_name = info.get("name") or ""
-        picture = info.get("picture") or ""  # noqa: F841 (foydalanish optional)
 
         with transaction.atomic():
             # Google_id bo'yicha qidirish
@@ -304,7 +308,7 @@ class GoogleLoginView(APIView):
                     email=email,
                     google_id=google_id,
                     full_name=full_name,
-                    role=Role.CLIENT,
+                    role=requested_role,
                     is_verified=False,  # phone yo'qligida verified emas
                 )
                 user.set_unusable_password()

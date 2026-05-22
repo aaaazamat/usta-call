@@ -67,8 +67,11 @@ export const authApi = {
       .then((r) => r.data),
 
   // Google OAuth ID token bilan kirish
-  googleLogin: (idToken: string) =>
+  googleLogin: (idToken: string, role?: Exclude<Role, "admin">) =>
     api
-      .post<GoogleLoginResponse>("/auth/google/", { id_token: idToken })
+      .post<GoogleLoginResponse>("/auth/google/", {
+        id_token: idToken,
+        ...(role ? { role } : {}),
+      })
       .then((r) => r.data),
 };

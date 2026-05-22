@@ -234,11 +234,39 @@ export function OtpAuthForm({
             </p>
           </div>
 
+          {showRoleSelect && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="space-y-2"
+            >
+              <Label>Men kim?</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <RoleOption
+                  active={role === "client"}
+                  onClick={() => setRole("client")}
+                  title="Mijoz"
+                  text="Xizmat qidiraman"
+                  icon={<UserIcon className="h-5 w-5" />}
+                />
+                <RoleOption
+                  active={role === "master"}
+                  onClick={() => setRole("master")}
+                  title="Usta"
+                  text="Xizmat ko'rsataman"
+                  icon={<Wrench className="h-5 w-5" />}
+                />
+              </div>
+            </motion.div>
+          )}
+
           {/* Tezkor kirish: Telegram va Google */}
           <div className="space-y-3">
             <TelegramLoginButton redirectTo={redirectTarget} />
             <GoogleLoginButton
               redirectTo={redirectTarget}
+              role={role === "admin" ? "client" : role}
               onNeedsPhone={() => setPhoneDialogOpen(true)}
             />
           </div>
@@ -282,35 +310,8 @@ export function OtpAuthForm({
           </div>
 
           <form onSubmit={handlePhoneSubmit} className="space-y-6">
-            {showRoleSelect && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="space-y-2"
-            >
-              <Label>Men kim?</Label>
-              <div className="grid grid-cols-2 gap-3">
-                <RoleOption
-                  active={role === "client"}
-                  onClick={() => setRole("client")}
-                  title="Mijoz"
-                  text="Xizmat qidiraman"
-                  icon={<UserIcon className="h-5 w-5" />}
-                />
-                <RoleOption
-                  active={role === "master"}
-                  onClick={() => setRole("master")}
-                  title="Usta"
-                  text="Xizmat ko'rsataman"
-                  icon={<Wrench className="h-5 w-5" />}
-                />
-              </div>
-            </motion.div>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefon raqami</Label>
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefon raqami</Label>
             <Input
               id="phone"
               type="tel"

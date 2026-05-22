@@ -6,17 +6,24 @@ import { toast } from "sonner";
 
 import { authApi } from "@/lib/api/auth";
 import { getApiErrorMessage } from "@/lib/api/errors";
+import type { Role } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
 
 const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
 
 interface Props {
   redirectTo?: string;
+  /** Birinchi marta ro'yxatdan o'tganda tanlangan rol (mijoz/usta) */
+  role?: Exclude<Role, "admin">;
   /** Foydalanuvchi Google bilan kirgach, agar telefoni yo'q bo'lsa chaqiriladi */
   onNeedsPhone?: () => void;
 }
 
-export function GoogleLoginButton({ redirectTo = "/", onNeedsPhone }: Props) {
+export function GoogleLoginButton({
+  redirectTo = "/",
+  role,
+  onNeedsPhone,
+}: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next");
@@ -42,7 +49,10 @@ export function GoogleLoginButton({ redirectTo = "/", onNeedsPhone }: Props) {
               return;
             }
             try {
-              const result = await authApi.googleLogin(credential.credential);
+              const result = await authApi.googleLogin(
+                credential.credential,
+                role,
+              );
               setSession(result.tokens, result.user);
               if (result.needs_phone) {
                 toast.info("Telefon raqamingizni qo'shing");

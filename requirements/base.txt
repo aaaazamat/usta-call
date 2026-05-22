@@ -46,3 +46,4 @@ httpx>=0.27
 
 # Google OAuth (ID token tekshirish)
 google-auth>=2.35
+requests>=2.32  # google-auth transport uchun

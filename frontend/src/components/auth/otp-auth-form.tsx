@@ -14,6 +14,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { AddPhoneDialog } from "@/components/auth/add-phone-dialog";
+import { GoogleLoginButton } from "@/components/auth/google-login-button";
+import { TelegramLoginButton } from "@/components/auth/telegram-login-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +58,8 @@ export function OtpAuthForm({
   const [role, setRole] = useState<Role>(initialRole);
   const [code, setCode] = useState("");
   const [resendIn, setResendIn] = useState(0);
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
+  const [telegramHint, setTelegramHint] = useState<string | null>(null);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -72,6 +77,12 @@ export function OtpAuthForm({
         );
         router.push(redirectTarget);
         router.refresh();
+        return;
+      }
+      // Telegram bot bilan ulanmagan — foydalanuvchini Telegram tugmasiga yo'naltirish
+      if (data.needs_telegram_link) {
+        setTelegramHint(data.telegram_bot_username ?? "");
+        toast.info("Avval Telegram bilan ulaning");
         return;
       }
       setStep("code");
@@ -204,13 +215,12 @@ export function OtpAuthForm({
           </div>
         </motion.div>
       ) : (
-        <motion.form
+        <motion.div
           key="phone"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
           transition={{ duration: 0.25 }}
-          onSubmit={handlePhoneSubmit}
           className="space-y-6"
         >
           <div className="space-y-2">
@@ -219,12 +229,60 @@ export function OtpAuthForm({
             </h2>
             <p className="text-sm text-muted-foreground">
               {mode === "register"
-                ? "Telefon raqamingizni kiriting — sekundlarda ro'yxatdan o'tasiz"
-                : "Telefon raqamingizni kiriting va davom eting"}
+                ? "Quyidagi usullardan birini tanlang"
+                : "Quyidagi usullardan birini tanlang"}
             </p>
           </div>
 
-          {showRoleSelect && (
+          {/* Tezkor kirish: Telegram va Google */}
+          <div className="space-y-3">
+            <TelegramLoginButton redirectTo={redirectTarget} />
+            <GoogleLoginButton
+              redirectTo={redirectTarget}
+              onNeedsPhone={() => setPhoneDialogOpen(true)}
+            />
+          </div>
+
+          {telegramHint !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
+            >
+              <p className="font-medium mb-0.5">Avval Telegram'ga ulanish kerak</p>
+              <p className="text-amber-800 text-xs">
+                Yuqoridagi <span className="font-semibold">&quot;Telegram bilan davom etish&quot;</span> tugmasini bosing.
+                {telegramHint && (
+                  <>
+                    {" "}Yoki to&apos;g&apos;ridan-to&apos;g&apos;ri{" "}
+                    <a
+                      href={`https://t.me/${telegramHint.replace(/^@/, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline font-semibold"
+                    >
+                      @{telegramHint.replace(/^@/, "")}
+                    </a>{" "}
+                    ga o&apos;ting.
+                  </>
+                )}
+              </p>
+            </motion.div>
+          )}
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-card px-3 text-muted-foreground uppercase tracking-wider">
+                yoki telefon orqali
+              </span>
+            </div>
+          </div>
+
+          <form onSubmit={handlePhoneSubmit} className="space-y-6">
+            {showRoleSelect && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -290,14 +348,21 @@ export function OtpAuthForm({
             </span>
           </Button>
 
-          <div className="text-center text-xs text-muted-foreground">
-            Davom etish orqali siz{" "}
-            <a href="#" className="text-foreground underline underline-offset-2">
-              foydalanish shartlari
-            </a>{" "}
-            bilan rozisiz
-          </div>
-        </motion.form>
+            <div className="text-center text-xs text-muted-foreground">
+              Davom etish orqali siz{" "}
+              <a href="#" className="text-foreground underline underline-offset-2">
+                foydalanish shartlari
+              </a>{" "}
+              bilan rozisiz
+            </div>
+          </form>
+
+          <AddPhoneDialog
+            open={phoneDialogOpen}
+            onOpenChange={setPhoneDialogOpen}
+            redirectTo={redirectTarget}
+          />
+        </motion.div>
       )}
     </AnimatePresence>
   );

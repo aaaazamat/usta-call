@@ -34,10 +34,32 @@ class VerifyOtpSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    needs_phone = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = User
-        fields = ("id", "phone", "full_name", "role", "avatar", "is_verified", "created_at")
-        read_only_fields = ("id", "phone", "role", "is_verified", "created_at")
+        fields = (
+            "id",
+            "phone",
+            "email",
+            "full_name",
+            "role",
+            "avatar",
+            "is_verified",
+            "telegram_username",
+            "needs_phone",
+            "created_at",
+        )
+        read_only_fields = (
+            "id",
+            "phone",
+            "email",
+            "role",
+            "is_verified",
+            "telegram_username",
+            "needs_phone",
+            "created_at",
+        )
 
 
 class MeUpdateSerializer(serializers.ModelSerializer):

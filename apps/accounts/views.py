@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
@@ -9,14 +11,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import OtpCode, Role, User
+from .models import OtpCode, Role, TelegramLinkToken, User
 from .serializers import (
     MeUpdateSerializer,
     RequestOtpSerializer,
     UserSerializer,
     VerifyOtpSerializer,
+    normalize_phone,
 )
-from .services.sms import send_otp_sms
+from .services.sms import TelegramNotLinkedError, send_otp_sms
+
+logger = logging.getLogger(__name__)
 
 
 def _tokens_for(user: User) -> dict:
@@ -63,7 +68,21 @@ class RequestOtpView(APIView):
             )
             otp = OtpCode.objects.create(phone=phone, purpose="login")
 
-        send_otp_sms(phone, otp.code)
+        try:
+            send_otp_sms(phone, otp.code)
+        except TelegramNotLinkedError as exc:
+            # Foydalanuvchi Telegram'ga ulanmagan — frontend'ga aniq xato qaytaramiz
+            return Response(
+                {
+                    "detail": str(exc),
+                    "needs_telegram_link": True,
+                    "telegram_bot_username": getattr(
+                        settings, "TELEGRAM_BOT_USERNAME", ""
+                    ),
+                },
+                status=400,
+            )
+
         return Response(
             {"detail": "Kod yuborildi", "is_new_user": created},
             status=status.HTTP_200_OK,
@@ -119,12 +138,35 @@ class MeView(APIView):
         return Response(UserSerializer(request.user).data)
 
 
-class SwitchRoleView(APIView):
-    """Mijozdan ustaga (yoki aksincha) o'tish.
+class AddPhoneView(APIView):
+    """Google orqali kirgan foydalanuvchi keyinroq telefon raqamini qo'shadi."""
 
-    Eslatma: usta ekanligini tasdiqlash uchun admin moderatsiya talab qilinishi mumkin —
-    hozircha self-service, lekin keyin `MasterProfile.is_approved` orqali nazorat qilinadi.
-    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        phone_raw = (request.data.get("phone") or "").strip()
+        if not phone_raw:
+            return Response({"detail": "Telefon kiritilmagan"}, status=400)
+        try:
+            phone = normalize_phone(phone_raw)
+        except Exception:
+            return Response({"detail": "Telefon noto'g'ri formatda"}, status=400)
+
+        # Telefon boshqa foydalanuvchida band emasligini tekshirish
+        if User.objects.filter(phone=phone).exclude(pk=request.user.pk).exists():
+            return Response(
+                {"detail": "Bu raqam boshqa foydalanuvchida ro'yxatdan o'tgan"},
+                status=400,
+            )
+
+        request.user.phone = phone
+        request.user.is_verified = False  # OTP tasdiqlanguncha
+        request.user.save(update_fields=["phone", "is_verified", "updated_at"])
+        return Response(UserSerializer(request.user).data)
+
+
+class SwitchRoleView(APIView):
+    """Mijozdan ustaga (yoki aksincha) o'tish."""
 
     permission_classes = [IsAuthenticated]
 
@@ -135,3 +177,159 @@ class SwitchRoleView(APIView):
         request.user.role = new_role
         request.user.save(update_fields=["role", "updated_at"])
         return Response(UserSerializer(request.user).data)
+
+
+# ────────────────────── Telegram bot ──────────────────────
+
+
+class TelegramLinkStartView(APIView):
+    """Foydalanuvchi 'Telegram bilan kirish' bossa — bot deep link qaytaradi.
+
+    Foydalanuvchi botda /start <token> qiladi va kontaktini ulashadi.
+    Frontend polling orqali tasdiqlanishni kutadi.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        if not getattr(settings, "TELEGRAM_BOT_USERNAME", ""):
+            return Response({"detail": "Telegram bot sozlanmagan"}, status=503)
+        link = TelegramLinkToken.objects.create()
+        bot_username = settings.TELEGRAM_BOT_USERNAME.lstrip("@")
+        return Response(
+            {
+                "token": link.token,
+                "deep_link": f"https://t.me/{bot_username}?start={link.token}",
+            }
+        )
+
+
+class TelegramLinkPollView(APIView):
+    """Frontend polling: link tasdiqlandimi va foydalanuvchi kirdimi?"""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = (request.data.get("token") or "").strip()
+        if not token:
+            return Response({"detail": "Token kerak"}, status=400)
+        link = TelegramLinkToken.objects.filter(token=token).first()
+        if not link:
+            return Response({"detail": "Token topilmadi"}, status=404)
+        if not link.user:
+            return Response({"status": "pending"})
+        return Response(
+            {
+                "status": "linked",
+                "user": UserSerializer(link.user).data,
+                "tokens": _tokens_for(link.user),
+            }
+        )
+
+
+class TelegramWebhookView(APIView):
+    """Telegram bot Update webhook — sayt domeniga POST keladi."""
+
+    permission_classes = [AllowAny]
+    authentication_classes: list = []  # Telegram CSRF/JWT bilan kelmaydi
+
+    def post(self, request):
+        # Secret token validatsiyasi (Telegram setWebhook secret_token bilan)
+        expected_secret = getattr(settings, "TELEGRAM_WEBHOOK_SECRET", "")
+        if expected_secret:
+            received = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+            if received != expected_secret:
+                return Response({"detail": "forbidden"}, status=403)
+
+        try:
+            from .services.telegram_bot import handle_update
+
+            handle_update(request.data)
+        except Exception as exc:
+            logger.exception("Telegram webhook xatosi: %s", exc)
+        return Response({"ok": True})
+
+
+# ────────────────────── Google OAuth ──────────────────────
+
+
+class GoogleLoginView(APIView):
+    """Frontend Google'dan olgan ID token'ni tekshirib, JWT qaytaradi.
+
+    Foydalanuvchi google_id bo'yicha qidiriladi, yo'q bo'lsa yaratiladi.
+    Birinchi marta kirgan foydalanuvchida `needs_phone: true` qaytariladi —
+    frontend telefon kiritish modalini ochadi.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        id_token_str = (request.data.get("id_token") or "").strip()
+        if not id_token_str:
+            return Response({"detail": "id_token kerak"}, status=400)
+
+        client_id = getattr(settings, "GOOGLE_OAUTH_CLIENT_ID", "")
+        if not client_id:
+            return Response({"detail": "Google OAuth sozlanmagan"}, status=503)
+
+        try:
+            from google.auth.transport import requests as g_requests
+            from google.oauth2 import id_token as g_id_token
+
+            info = g_id_token.verify_oauth2_token(
+                id_token_str, g_requests.Request(), client_id
+            )
+        except Exception as exc:
+            logger.warning("Google ID token tekshiruv xatosi: %s", exc)
+            return Response({"detail": "Google token noto'g'ri"}, status=400)
+
+        google_id = info.get("sub")
+        email = (info.get("email") or "").lower()
+        if not google_id or not email:
+            return Response({"detail": "Google ma'lumotlari to'liq emas"}, status=400)
+
+        full_name = info.get("name") or ""
+        picture = info.get("picture") or ""  # noqa: F841 (foydalanish optional)
+
+        with transaction.atomic():
+            # Google_id bo'yicha qidirish
+            user = User.objects.filter(google_id=google_id).first()
+            if not user:
+                # Email bo'yicha qidirish (ehtimol foydalanuvchi avval boshqa yo'l bilan kirgan)
+                user = User.objects.filter(email=email).first()
+
+            created = False
+            if not user:
+                user = User.objects.create(
+                    email=email,
+                    google_id=google_id,
+                    full_name=full_name,
+                    role=Role.CLIENT,
+                    is_verified=False,  # phone yo'qligida verified emas
+                )
+                user.set_unusable_password()
+                user.save()
+                created = True
+            else:
+                # Mavjud foydalanuvchini Google bilan bog'lash
+                changed = False
+                if not user.google_id:
+                    user.google_id = google_id
+                    changed = True
+                if not user.email:
+                    user.email = email
+                    changed = True
+                if not user.full_name and full_name:
+                    user.full_name = full_name
+                    changed = True
+                if changed:
+                    user.save()
+
+        return Response(
+            {
+                "user": UserSerializer(user).data,
+                "tokens": _tokens_for(user),
+                "needs_phone": user.needs_phone,
+                "is_new_user": created,
+            }
+        )

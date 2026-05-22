@@ -1,10 +1,13 @@
 import { api } from "@/lib/api/client";
 import type {
+  GoogleLoginResponse,
   OtpRequestPayload,
   OtpRequestResponse,
   OtpVerifyPayload,
   OtpVerifyResponse,
   Role,
+  TelegramLinkPollResponse,
+  TelegramLinkStartResponse,
   User,
 } from "@/lib/api/types";
 
@@ -47,4 +50,25 @@ export const authApi = {
 
   switchRole: (role: Exclude<Role, "admin">) =>
     api.post<User>("/auth/me/role/", { role }).then((r) => r.data),
+
+  // Google'dan keyin telefon qo'shish
+  addPhone: (phone: string) =>
+    api.post<User>("/auth/me/phone/", { phone }).then((r) => r.data),
+
+  // Telegram bot ulanish flow
+  telegramLinkStart: () =>
+    api
+      .post<TelegramLinkStartResponse>("/auth/telegram/link/start/")
+      .then((r) => r.data),
+
+  telegramLinkPoll: (token: string) =>
+    api
+      .post<TelegramLinkPollResponse>("/auth/telegram/link/poll/", { token })
+      .then((r) => r.data),
+
+  // Google OAuth ID token bilan kirish
+  googleLogin: (idToken: string) =>
+    api
+      .post<GoogleLoginResponse>("/auth/google/", { id_token: idToken })
+      .then((r) => r.data),
 };

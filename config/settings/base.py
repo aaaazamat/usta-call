@@ -196,11 +196,20 @@ AI_MODEL_ANTHROPIC = env("AI_MODEL_ANTHROPIC", default="claude-opus-4-7")
 AI_MODEL_OPENAI = env("AI_MODEL_OPENAI", default="gpt-4o-mini")
 AI_MODEL_GEMINI = env("AI_MODEL_GEMINI", default="gemini-2.0-flash")
 
-# SMS (OTP)
-SMS_PROVIDER = env("SMS_PROVIDER", default="console")  # dev: console
+# SMS / OTP (console | telegram | eskiz)
+SMS_PROVIDER = env("SMS_PROVIDER", default="console")
 ESKIZ_EMAIL = env("ESKIZ_EMAIL", default="")
 ESKIZ_PASSWORD = env("ESKIZ_PASSWORD", default="")
 ESKIZ_FROM = env("ESKIZ_FROM", default="4546")
+
+# Telegram bot — OTP yetkazib berish va Telegram orqali kirish
+TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default="")
+TELEGRAM_BOT_USERNAME = env("TELEGRAM_BOT_USERNAME", default="")
+TELEGRAM_WEBHOOK_SECRET = env("TELEGRAM_WEBHOOK_SECRET", default="")
+
+# Google OAuth (1 bosishda kirish)
+GOOGLE_OAUTH_CLIENT_ID = env("GOOGLE_OAUTH_CLIENT_ID", default="")
+GOOGLE_OAUTH_CLIENT_SECRET = env("GOOGLE_OAUTH_CLIENT_SECRET", default="")
 
 # Beta mode — OTP tekshiruvini o'tkazib yuboradi va telefondan to'g'ridan-to'g'ri tokenlar beradi.
 # DIQQAT: Faqat sinov uchun! Production'da hech qachon True qilmang.

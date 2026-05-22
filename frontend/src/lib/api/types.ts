@@ -2,11 +2,14 @@ export type Role = "client" | "master" | "admin";
 
 export interface User {
   id: number;
-  phone: string;
+  phone: string | null;
+  email: string | null;
   full_name: string;
   role: Role;
   avatar: string | null;
   is_verified: boolean;
+  telegram_username: string;
+  needs_phone: boolean;
   created_at: string;
 }
 
@@ -27,11 +30,32 @@ export interface OtpVerifyPayload {
 
 export interface OtpRequestResponse {
   detail: string;
-  is_new_user: boolean;
+  is_new_user?: boolean;
   /** Beta rejim: server darhol kirgizadi va tokenlar qaytaradi (OTP qadami yo'q). */
   auto_login?: boolean;
   user?: User;
   tokens?: AuthTokens;
+  /** Telegram bot bilan ulanmagan — frontend Telegram ulanish modalini ochishi kerak */
+  needs_telegram_link?: boolean;
+  telegram_bot_username?: string;
+}
+
+export interface TelegramLinkStartResponse {
+  token: string;
+  deep_link: string;
+}
+
+export interface TelegramLinkPollResponse {
+  status: "pending" | "linked";
+  user?: User;
+  tokens?: AuthTokens;
+}
+
+export interface GoogleLoginResponse {
+  user: User;
+  tokens: AuthTokens;
+  needs_phone: boolean;
+  is_new_user: boolean;
 }
 
 export interface OtpVerifyResponse {

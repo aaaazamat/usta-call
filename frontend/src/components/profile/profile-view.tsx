@@ -100,7 +100,8 @@ function ProfileCard({ user }: { user: User }) {
             <Avatar className="h-20 w-20">
               <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
               <AvatarFallback className="text-xl">
-                {user.full_name?.[0]?.toUpperCase() ?? user.phone.slice(-2)}
+                {user.full_name?.[0]?.toUpperCase() ??
+                  (user.phone?.slice(-2) ?? "U")}
               </AvatarFallback>
             </Avatar>
             <button
@@ -139,7 +140,12 @@ function ProfileCard({ user }: { user: User }) {
         <div className="space-y-2">
           <Label htmlFor="phone">Telefon raqami</Label>
           <div className="flex items-center gap-2">
-            <Input id="phone" value={user.phone} readOnly disabled />
+            <Input
+              id="phone"
+              value={user.phone ?? "—"}
+              readOnly
+              disabled
+            />
             {user.is_verified && (
               <Badge variant="secondary" className="gap-1">
                 <CheckCircle2 className="h-3 w-3 text-green-600" /> Tasdiqlangan

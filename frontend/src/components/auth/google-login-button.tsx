@@ -1,0 +1,70 @@
+"use client";
+
+import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+
+import { authApi } from "@/lib/api/auth";
+import { getApiErrorMessage } from "@/lib/api/errors";
+import { useAuthStore } from "@/lib/auth/store";
+
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+
+interface Props {
+  redirectTo?: string;
+  /** Foydalanuvchi Google bilan kirgach, agar telefoni yo'q bo'lsa chaqiriladi */
+  onNeedsPhone?: () => void;
+}
+
+export function GoogleLoginButton({ redirectTo = "/", onNeedsPhone }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const redirectTarget = nextParam?.startsWith("/") ? nextParam : redirectTo;
+  const setSession = useAuthStore((s) => s.setSession);
+
+  if (!GOOGLE_CLIENT_ID) {
+    return null; // Google sozlanmagan bo'lsa, tugma ko'rinmaydi
+  }
+
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <div className="w-full flex justify-center [&>div]:!w-full">
+        <GoogleLogin
+          size="large"
+          width="100%"
+          shape="rectangular"
+          theme="outline"
+          text="continue_with"
+          onSuccess={async (credential) => {
+            if (!credential.credential) {
+              toast.error("Google'dan ma'lumot olinmadi");
+              return;
+            }
+            try {
+              const result = await authApi.googleLogin(credential.credential);
+              setSession(result.tokens, result.user);
+              if (result.needs_phone) {
+                toast.info("Telefon raqamingizni qo'shing");
+                onNeedsPhone?.();
+              } else {
+                toast.success(
+                  result.is_new_user
+                    ? "Xush kelibsiz!"
+                    : "Tizimga kirdingiz",
+                );
+                router.push(redirectTarget);
+                router.refresh();
+              }
+            } catch (err) {
+              toast.error(getApiErrorMessage(err));
+            }
+          }}
+          onError={() => {
+            toast.error("Google bilan kirish bekor qilindi");
+          }}
+        />
+      </div>
+    </GoogleOAuthProvider>
+  );
+}

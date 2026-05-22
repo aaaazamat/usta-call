@@ -40,5 +40,16 @@ services:
       # CORS — Vercel domeni keyinroq qo'shiladi
       - key: CORS_ALLOWED_ORIGINS
         sync: false
+      # SMS / OTP — telegram | console | eskiz
       - key: SMS_PROVIDER
         value: console
+      # Telegram bot (qo'lda kiritiladi dashboard'da)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        generateValue: true
+      # Google OAuth (qo'lda kiritiladi)
+      - key: GOOGLE_OAUTH_CLIENT_ID
+        sync: false

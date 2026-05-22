@@ -281,7 +281,15 @@ class GoogleLoginView(APIView):
             )
         except Exception as exc:
             logger.warning("Google ID token tekshiruv xatosi: %s", exc)
-            return Response({"detail": "Google token noto'g'ri"}, status=400)
+            # Debug uchun — production'da olib tashlash kerak
+            return Response(
+                {
+                    "detail": "Google token noto'g'ri",
+                    "debug_error": str(exc),
+                    "debug_client_id_suffix": client_id[-20:] if client_id else "EMPTY",
+                },
+                status=400,
+            )
 
         google_id = info.get("sub")
         email = (info.get("email") or "").lower()

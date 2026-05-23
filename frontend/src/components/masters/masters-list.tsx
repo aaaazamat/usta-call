@@ -86,70 +86,72 @@ export function MastersList() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Ustalar</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className="text-2xl md:text-3xl font-bold">Ustalar</h1>
+        <p className="text-sm md:text-base text-muted-foreground mt-1">
           {data ? `${data.count} ta usta topildi` : "Ustalar ro'yxati"}
         </p>
       </div>
 
       <div className="flex flex-col gap-3">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Ism, kategoriya yoki ko'nikma bo'yicha qidirish..."
-              className="h-10 pl-9 text-sm"
+              placeholder="Qidirish..."
+              className="h-11 pl-9 text-base"
             />
           </div>
 
-          <Select
-            value={initial.region ? String(initial.region) : NONE}
-            onValueChange={(v) =>
-              updateParam({ region: !v || v === NONE ? undefined : Number(v) })
-            }
-          >
-            <SelectTrigger className="h-10 w-[180px]">
-              <SelectValue placeholder="Hudud">
-                {(value) =>
-                  !value || value === NONE
-                    ? "Barcha hududlar"
-                    : viloyatlar.find((r) => String(r.id) === value)?.name ?? "Hudud"
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={NONE}>Barcha hududlar</SelectItem>
-              {viloyatlar.map((r) => (
-                <SelectItem key={r.id} value={String(r.id)}>
-                  {r.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <Select
+              value={initial.region ? String(initial.region) : NONE}
+              onValueChange={(v) =>
+                updateParam({ region: !v || v === NONE ? undefined : Number(v) })
+              }
+            >
+              <SelectTrigger className="h-11 flex-1 sm:flex-initial sm:w-[180px]">
+                <SelectValue placeholder="Hudud">
+                  {(value) =>
+                    !value || value === NONE
+                      ? "Barcha hududlar"
+                      : viloyatlar.find((r) => String(r.id) === value)?.name ?? "Hudud"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NONE}>Barcha hududlar</SelectItem>
+                {viloyatlar.map((r) => (
+                  <SelectItem key={r.id} value={String(r.id)}>
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-          <Select
-            value={initial.ordering ?? "-rating_cache"}
-            onValueChange={(v) => updateParam({ ordering: v ?? undefined })}
-          >
-            <SelectTrigger className="h-10 w-[200px]">
-              <SlidersHorizontal className="h-3.5 w-3.5 mr-2" />
-              <SelectValue>
-                {(value) =>
-                  ORDERING_OPTIONS.find((o) => o.value === value)?.label ??
-                  "Saralash"
-                }
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {ORDERING_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={initial.ordering ?? "-rating_cache"}
+              onValueChange={(v) => updateParam({ ordering: v ?? undefined })}
+            >
+              <SelectTrigger className="h-11 flex-1 sm:flex-initial sm:w-[200px]">
+                <SlidersHorizontal className="h-3.5 w-3.5 mr-2" />
+                <SelectValue>
+                  {(value) =>
+                    ORDERING_OPTIONS.find((o) => o.value === value)?.label ??
+                    "Saralash"
+                  }
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {ORDERING_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {categories && categories.length > 0 && (

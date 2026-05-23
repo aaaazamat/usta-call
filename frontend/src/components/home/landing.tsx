@@ -65,15 +65,15 @@ function Hero() {
         <div className="absolute -bottom-20 left-40 w-72 h-72 bg-pink-300/30 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
       </div>
 
-      <Container className="relative py-24 md:py-32">
+      <Container className="relative py-16 md:py-32">
         <motion.div style={{ y, opacity }} className="max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full border bg-white/80 backdrop-blur px-4 py-1.5 text-sm text-muted-foreground mb-6 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full border bg-white/80 backdrop-blur px-3 md:px-4 py-1.5 text-xs md:text-sm text-muted-foreground mb-5 md:mb-6 shadow-sm"
           >
-            <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+            <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary animate-pulse" />
             AI yordamida eng mos ustani toping
           </motion.div>
 
@@ -81,9 +81,9 @@ function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6"
+            className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] md:leading-[1.05] mb-5 md:mb-6"
           >
-            Kerakli ustani <br />
+            Kerakli ustani <br className="hidden sm:block" />
             <span className="gradient-text">bir daqiqada</span> toping
           </motion.h1>
 
@@ -91,7 +91,7 @@ function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
+            className="text-base md:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto px-2"
           >
             Santexnik, elektrik, quruvchi va boshqa minglab ustalar — barchasi bir
             joyda. Ishni tasvirlang, AI siz uchun eng mosini tanlab beradi.
@@ -101,9 +101,9 @@ function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap gap-3 justify-center"
+            className="flex flex-col sm:flex-row gap-3 justify-center px-4 sm:px-0"
           >
-            <Button size="lg" render={<Link href="/orders/new" />}>
+            <Button size="lg" render={<Link href="/orders/new" />} className="w-full sm:w-auto">
               Buyurtma berish
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -111,6 +111,7 @@ function Hero() {
               size="lg"
               variant="outline"
               render={<Link href="/masters" />}
+              className="w-full sm:w-auto"
             >
               Ustalarni ko&apos;rish
             </Button>
@@ -120,7 +121,7 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-12 flex items-center justify-center gap-6 text-sm text-muted-foreground"
+            className="mt-10 md:mt-12 flex items-center justify-center gap-4 md:gap-6 text-sm text-muted-foreground"
           >
             <div className="flex -space-x-2">
               {[11, 12, 13, 14, 15].map((id) => (
@@ -151,7 +152,7 @@ function CategoriesSection() {
   const topCategories = categories?.filter((c) => !c.parent) ?? [];
 
   return (
-    <section className="py-20 md:py-28 bg-background">
+    <section className="py-14 md:py-28 bg-background">
       <Container>
         <motion.div {...fadeInUp} className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
@@ -202,7 +203,7 @@ function StatsSection() {
   ];
 
   return (
-    <section className="py-20 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 border-y">
+    <section className="py-12 md:py-20 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 border-y">
       <Container>
         <motion.div
           {...stagger}
@@ -235,7 +236,7 @@ function FeaturedMastersSection() {
   const masters = data?.results.slice(0, 6) ?? [];
 
   return (
-    <section className="py-20 md:py-28">
+    <section className="py-14 md:py-28">
       <Container>
         <motion.div {...fadeInUp} className="flex items-end justify-between gap-4 mb-10 flex-wrap">
           <div>

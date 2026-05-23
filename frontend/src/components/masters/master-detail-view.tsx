@@ -76,10 +76,10 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
   };
 
   return (
-    <div className="space-y-8">
-      <header className="rounded-2xl border bg-gradient-to-br from-primary/5 via-transparent to-transparent p-6 md:p-8">
-        <div className="flex flex-col md:flex-row gap-6">
-          <Avatar className="h-24 w-24 md:h-28 md:w-28 shrink-0">
+    <div className="space-y-6 md:space-y-8">
+      <header className="rounded-2xl border bg-gradient-to-br from-primary/5 via-transparent to-transparent p-4 md:p-8">
+        <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-center sm:items-start">
+          <Avatar className="h-20 w-20 md:h-28 md:w-28 shrink-0">
             <AvatarImage src={master.user.avatar ?? undefined} alt={master.user.full_name} />
             <AvatarFallback className="text-2xl">
               {master.user.full_name?.[0]?.toUpperCase() ?? "U"}
@@ -142,16 +142,22 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
             )}
 
             {!isMasterRole && (
-              <div className="flex flex-wrap gap-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Button
                   size="lg"
                   onClick={handleBook}
                   disabled={!master.is_available}
+                  className="w-full sm:w-auto"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
                   {master.is_available ? "Band qilish" : "Hozir band"}
                 </Button>
-                <Button size="lg" variant="outline" onClick={handleCall}>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={handleCall}
+                  className="w-full sm:w-auto"
+                >
                   <Phone className="h-4 w-4 mr-2" /> Qo&apos;ng&apos;iroq qilish
                 </Button>
               </div>
@@ -168,12 +174,14 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
       </header>
 
       <Tabs defaultValue="about" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="about">Haqida</TabsTrigger>
-          <TabsTrigger value="portfolio">
+        <TabsList className="w-full sm:w-auto overflow-x-auto">
+          <TabsTrigger value="about" className="flex-1 sm:flex-initial">
+            Haqida
+          </TabsTrigger>
+          <TabsTrigger value="portfolio" className="flex-1 sm:flex-initial">
             Portfolio ({master.portfolio.length})
           </TabsTrigger>
-          <TabsTrigger value="reviews">
+          <TabsTrigger value="reviews" className="flex-1 sm:flex-initial">
             Sharhlar ({master.reviews_count_cache})
           </TabsTrigger>
         </TabsList>

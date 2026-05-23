@@ -292,16 +292,13 @@ export function OrderForm() {
         </p>
       </Section>
 
-      <div className="flex items-center justify-end gap-3 pt-4 border-t">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 pt-4 border-t">
         <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.back()}
+          type="submit"
+          size="lg"
           disabled={createOrder.isPending}
+          className="w-full sm:w-auto order-1 sm:order-2"
         >
-          Bekor qilish
-        </Button>
-        <Button type="submit" size="lg" disabled={createOrder.isPending}>
           {createOrder.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin mr-2" /> Yaratilmoqda...
@@ -309,6 +306,15 @@ export function OrderForm() {
           ) : (
             "Buyurtmani e'lon qilish"
           )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={createOrder.isPending}
+          className="w-full sm:w-auto order-2 sm:order-1"
+        >
+          Bekor qilish
         </Button>
       </div>
     </form>

@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, User as UserIcon, Wrench } from "lucide-react";
+import { useState } from "react";
+import {
+  LogOut,
+  Menu as MenuIcon,
+  User as UserIcon,
+  Wrench,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
 import {
   DropdownMenu,
@@ -14,6 +19,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useAuthStore } from "@/lib/auth/store";
 
 interface NavLink {
@@ -44,6 +56,7 @@ export function Navbar() {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const links: NavLink[] = !user
     ? GUEST_LINKS
@@ -53,24 +66,24 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/40 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
-      <Container className="flex h-20 items-center justify-between">
+      <Container className="flex h-16 md:h-20 items-center justify-between">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 font-bold text-xl group"
+          className="flex items-center gap-2 md:gap-3 font-bold group shrink-0"
         >
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-primary via-purple-500 to-pink-500 rounded-2xl blur-md opacity-50 group-hover:opacity-80 transition-opacity" />
-            <div className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 text-white shadow-md group-hover:scale-105 transition-transform">
-              <Wrench className="h-6 w-6" />
+            <div className="relative inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 text-white shadow-md group-hover:scale-105 transition-transform">
+              <Wrench className="h-5 w-5 md:h-6 md:w-6" />
             </div>
           </div>
-          <span className="hidden sm:inline text-2xl tracking-tight">
+          <span className="text-lg md:text-2xl tracking-tight">
             usta<span className="gradient-text">-call</span>
           </span>
         </Link>
 
-        {/* Asosiy nav linklari */}
+        {/* Desktop nav linklari */}
         <nav className="hidden md:flex items-center gap-1">
           {links.map((link) => {
             const active = pathname === link.href;
@@ -95,13 +108,13 @@ export function Navbar() {
         </nav>
 
         {/* O'ng tarafdagi tugmalar */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition hover:opacity-80">
-                <Avatar className="h-11 w-11 ring-2 ring-background shadow-sm">
+                <Avatar className="h-9 w-9 md:h-11 md:w-11 ring-2 ring-background shadow-sm">
                   <AvatarImage src={user.avatar ?? undefined} alt={user.full_name} />
-                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-medium text-base">
+                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-purple-500/20 text-primary font-medium">
                     {user.full_name?.[0] ?? <UserIcon className="h-5 w-5" />}
                   </AvatarFallback>
                 </Avatar>
@@ -112,7 +125,9 @@ export function Navbar() {
                     <span className="font-medium">
                       {user.full_name || "Foydalanuvchi"}
                     </span>
-                    <span className="text-xs text-muted-foreground">{user.phone}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.phone ?? user.email}
+                    </span>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
@@ -148,19 +163,97 @@ export function Navbar() {
             <>
               <Link
                 href="/login"
-                className="hidden sm:inline-flex items-center h-11 px-5 text-base font-medium rounded-xl text-foreground hover:bg-muted transition-colors"
+                className="hidden md:inline-flex items-center h-11 px-5 text-base font-medium rounded-xl text-foreground hover:bg-muted transition-colors"
               >
                 Kirish
               </Link>
               <Link
                 href="/register"
-                className="relative inline-flex items-center h-11 px-6 text-base font-semibold rounded-xl text-white shadow-md hover:shadow-xl transition-all bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:scale-105 active:scale-100"
+                className="relative hidden md:inline-flex items-center h-11 px-6 text-base font-semibold rounded-xl text-white shadow-md hover:shadow-xl transition-all bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:scale-105 active:scale-100"
               >
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 blur-md opacity-40 -z-10" />
                 Ro&apos;yxatdan o&apos;tish
               </Link>
             </>
           )}
+
+          {/* Mobile hamburger menu */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-xl hover:bg-muted transition-colors">
+              <MenuIcon className="h-5 w-5" />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
+              <SheetHeader className="border-b p-4">
+                <SheetTitle className="text-left">Menyu</SheetTitle>
+              </SheetHeader>
+
+              <nav className="flex flex-col p-2">
+                {links.map((link) => {
+                  const active = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={
+                        "flex items-center px-4 py-3 rounded-xl text-base font-medium transition-colors " +
+                        (active
+                          ? "bg-primary/10 text-primary"
+                          : "text-foreground hover:bg-muted")
+                      }
+                    >
+                      {link.label}
+                      {active && (
+                        <span className="ml-auto h-2 w-2 rounded-full bg-primary" />
+                      )}
+                    </Link>
+                  );
+                })}
+
+                {!user && (
+                  <div className="mt-3 pt-3 border-t flex flex-col gap-2 px-2">
+                    <Link
+                      href="/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center justify-center h-11 px-5 text-base font-medium rounded-xl border hover:bg-muted transition-colors"
+                    >
+                      Kirish
+                    </Link>
+                    <Link
+                      href="/register"
+                      onClick={() => setMobileOpen(false)}
+                      className="inline-flex items-center justify-center h-11 px-5 text-base font-semibold rounded-xl text-white shadow-md bg-gradient-to-br from-primary via-purple-500 to-pink-500 active:scale-95"
+                    >
+                      Ro&apos;yxatdan o&apos;tish
+                    </Link>
+                  </div>
+                )}
+
+                {user && (
+                  <div className="mt-3 pt-3 border-t px-2">
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center px-4 py-3 rounded-xl text-base font-medium text-foreground hover:bg-muted transition-colors"
+                    >
+                      Profil
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        logout();
+                        setMobileOpen(false);
+                      }}
+                      className="w-full flex items-center px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10 transition-colors text-left"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Chiqish
+                    </button>
+                  </div>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </Container>
     </header>

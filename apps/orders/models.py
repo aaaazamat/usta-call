@@ -2,25 +2,26 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel
 from apps.masters.models import Category, MasterProfile, Region, Skill
 
 
 class OrderStatus(models.TextChoices):
-    DRAFT = "draft", "Qoralama"
-    PUBLISHED = "published", "Aktiv (e'lon qilingan)"
-    MATCHED = "matched", "Usta tanlangan"
-    IN_PROGRESS = "in_progress", "Ish davom etyapti"
-    COMPLETED = "completed", "Yakunlangan"
-    CANCELLED = "cancelled", "Bekor qilingan"
+    DRAFT = "draft", _("Qoralama")
+    PUBLISHED = "published", _("Aktiv (e'lon qilingan)")
+    MATCHED = "matched", _("Usta tanlangan")
+    IN_PROGRESS = "in_progress", _("Ish davom etyapti")
+    COMPLETED = "completed", _("Yakunlangan")
+    CANCELLED = "cancelled", _("Bekor qilingan")
 
 
 class Urgency(models.TextChoices):
-    LOW = "low", "Shoshilinch emas"
-    NORMAL = "normal", "Oddiy"
-    HIGH = "high", "Tezkor"
-    EMERGENCY = "emergency", "Favqulodda"
+    LOW = "low", _("Shoshilinch emas")
+    NORMAL = "normal", _("Oddiy")
+    HIGH = "high", _("Tezkor")
+    EMERGENCY = "emergency", _("Favqulodda")
 
 
 class Order(TimeStampedModel):
@@ -66,8 +67,8 @@ class Order(TimeStampedModel):
     cancelled_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        verbose_name = "Buyurtma"
-        verbose_name_plural = "Buyurtmalar"
+        verbose_name = _("Buyurtma")
+        verbose_name_plural = _("Buyurtmalar")
         ordering = ("-created_at",)
         indexes = [
             models.Index(fields=["status", "-created_at"]),
@@ -89,10 +90,10 @@ class OrderImage(models.Model):
 
 
 class OrderResponseStatus(models.TextChoices):
-    PENDING = "pending", "Kutilmoqda"
-    ACCEPTED = "accepted", "Tanlangan"
-    REJECTED = "rejected", "Rad etilgan"
-    WITHDRAWN = "withdrawn", "Usta o'z taklifini qaytarib oldi"
+    PENDING = "pending", _("Kutilmoqda")
+    ACCEPTED = "accepted", _("Tanlangan")
+    REJECTED = "rejected", _("Rad etilgan")
+    WITHDRAWN = "withdrawn", _("Usta o'z taklifini qaytarib oldi")
 
 
 class OrderResponse(TimeStampedModel):
@@ -108,7 +109,7 @@ class OrderResponse(TimeStampedModel):
     price_offer = models.DecimalField(max_digits=12, decimal_places=2)
     message = models.TextField(blank=True)
     eta_hours = models.PositiveSmallIntegerField(
-        null=True, blank=True, help_text="Necha soatda bajariladi"
+        null=True, blank=True, help_text=_("Necha soatda bajariladi")
     )
 
     status = models.CharField(
@@ -129,11 +130,11 @@ class OrderResponse(TimeStampedModel):
 
 class BookingStatus(models.TextChoices):
     """Band qilish so'rovi holati."""
-    PENDING = "pending", "Yuborildi"           # Mijoz yubordi, usta hali ko'rmadi/hal qilmadi
-    ACCEPTED = "accepted", "Qabul qilindi"     # Usta ishni oldi
-    DECLINED = "declined", "Rad etildi"        # Usta rad etdi
-    COMPLETED = "completed", "Yakunlandi"      # Ish bajarildi
-    CANCELLED = "cancelled", "Bekor qilindi"   # Mijoz bekor qildi
+    PENDING = "pending", _("Yuborildi")           # Mijoz yubordi, usta hali ko'rmadi/hal qilmadi
+    ACCEPTED = "accepted", _("Qabul qilindi")     # Usta ishni oldi
+    DECLINED = "declined", _("Rad etildi")        # Usta rad etdi
+    COMPLETED = "completed", _("Yakunlandi")      # Ish bajarildi
+    CANCELLED = "cancelled", _("Bekor qilindi")   # Mijoz bekor qildi
 
 
 class BookingRequest(TimeStampedModel):
@@ -167,8 +168,8 @@ class BookingRequest(TimeStampedModel):
     note = models.TextField(blank=True)
 
     class Meta:
-        verbose_name = "Band qilish so'rovi"
-        verbose_name_plural = "Band qilish so'rovlari"
+        verbose_name = _("Band qilish so'rovi")
+        verbose_name_plural = _("Band qilish so'rovlari")
         unique_together = [("order", "master")]
         ordering = ("-created_at",)
         indexes = [

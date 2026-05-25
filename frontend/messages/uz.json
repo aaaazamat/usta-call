@@ -1,0 +1,160 @@
+{
+  "common": {
+    "appName": "usta-call",
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "loading": "Yuklanmoqda...",
+    "search": "Qidirish",
+    "send": "Yuborish",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "submit": "Yuborish",
+    "close": "Yopish",
+    "more": "Ko'proq",
+    "all": "Hammasi",
+    "from": "dan",
+    "to": "gacha",
+    "soum": "so'm"
+  },
+  "nav": {
+    "home": "Bosh sahifa",
+    "masters": "Ustalar",
+    "orders": "Buyurtmalar",
+    "newOrder": "Yangi buyurtma",
+    "bookings": "Band qilishlar",
+    "chat": "Chat",
+    "dashboard": "Boshqaruv",
+    "profile": "Profil",
+    "howItWorks": "Qanday ishlaydi",
+    "login": "Kirish",
+    "register": "Ro'yxatdan o'tish",
+    "logout": "Chiqish",
+    "language": "Til"
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Kirish · usta-call",
+      "noAccount": "Hisobingiz yo'qmi?",
+      "signUp": "Ro'yxatdan o'ting"
+    },
+    "register": {
+      "metaTitle": "Ro'yxatdan o'tish · usta-call",
+      "haveAccount": "Hisobingiz bormi?",
+      "signIn": "Kiring",
+      "chooseRole": "Kim sifatida ro'yxatdan o'tasiz?",
+      "asClient": "Mijoz",
+      "asMaster": "Usta"
+    },
+    "otp": {
+      "phonePlaceholder": "Telefon raqamingiz",
+      "enterPhone": "Telefon raqamingizni kiriting",
+      "sendCode": "Kod yuborish",
+      "enterCode": "Kelgan kodni kiriting",
+      "verifyCode": "Tasdiqlash",
+      "resendCode": "Kodni qayta yuborish",
+      "welcome": "Xush kelibsiz!",
+      "loggedIn": "Tizimga kirdingiz",
+      "invalidCode": "Noto'g'ri kod"
+    },
+    "google": {
+      "continueWith": "Google bilan davom etish"
+    },
+    "telegram": {
+      "continueWith": "Telegram bilan kirish"
+    },
+    "or": "yoki"
+  },
+  "home": {
+    "heroTitle": "Eng yaxshi ustalarni toping",
+    "heroSubtitle": "Santexnik, elektrik, quruvchi va boshqa minglab usta — bir qo'ng'iroq narida",
+    "ctaFindMaster": "Usta topish",
+    "ctaPostJob": "Buyurtma joylashtirish",
+    "categoriesTitle": "Mashhur kategoriyalar",
+    "howItWorksTitle": "Bu qanday ishlaydi"
+  },
+  "masters": {
+    "listTitle": "Ustalar katalogi",
+    "filterCategory": "Kategoriya bo'yicha",
+    "filterRegion": "Hudud bo'yicha",
+    "sortRating": "Reyting",
+    "sortNewest": "Yangiroq",
+    "ratingLabel": "{rating} ({count} sharh)",
+    "experienceYears": "{years} yil tajriba",
+    "availableNow": "Hozir bo'sh",
+    "notAvailable": "Hozir band",
+    "viewProfile": "Profilni ko'rish",
+    "bookMaster": "Band qilish",
+    "portfolioTitle": "Portfolio",
+    "reviewsTitle": "Sharhlar",
+    "noReviews": "Hali sharhlar yo'q"
+  },
+  "orders": {
+    "newTitle": "Yangi buyurtma berish",
+    "myTitle": "Mening buyurtmalarim",
+    "feedTitle": "Yangi buyurtmalar",
+    "field": {
+      "title": "Qisqa sarlavha",
+      "description": "Batafsil tavsif",
+      "address": "Manzil",
+      "region": "Hudud",
+      "category": "Kategoriya",
+      "budgetFrom": "Byudjet (dan)",
+      "budgetTo": "Byudjet (gacha)",
+      "urgency": "Shoshilinchlik"
+    },
+    "submit": "Buyurtmani joylash",
+    "status": {
+      "draft": "Qoralama",
+      "published": "Aktiv",
+      "matched": "Usta tanlangan",
+      "inProgress": "Bajarilmoqda",
+      "completed": "Yakunlangan",
+      "cancelled": "Bekor qilingan"
+    },
+    "noOrders": "Hozircha buyurtmalar yo'q",
+    "respondToOrder": "Taklif yuborish",
+    "viewResponses": "Takliflarni ko'rish"
+  },
+  "chat": {
+    "title": "Xabarlar",
+    "noChats": "Hozircha chat yo'q",
+    "typeMessage": "Xabar yozing...",
+    "send": "Yuborish",
+    "online": "Onlayn",
+    "offline": "Oflayn"
+  },
+  "profile": {
+    "title": "Mening profilim",
+    "personalInfo": "Shaxsiy ma'lumotlar",
+    "professionalInfo": "Kasbiy ma'lumotlar",
+    "fullName": "F.I.Sh.",
+    "phone": "Telefon",
+    "bio": "O'zi haqida",
+    "experience": "Tajriba (yil)",
+    "hourlyRate": "Soatlik narx",
+    "skills": "Ko'nikmalar",
+    "categories": "Kategoriyalar",
+    "regions": "Ishlash hududlari",
+    "saveChanges": "O'zgarishlarni saqlash",
+    "avatarUpload": "Avatar yuklash"
+  },
+  "dashboard": {
+    "title": "Boshqaruv paneli",
+    "activeOrders": "Aktiv buyurtmalar",
+    "completedOrders": "Yakunlangan",
+    "pendingRequests": "Kutilayotgan so'rovlar",
+    "rating": "Reyting"
+  },
+  "errors": {
+    "networkError": "Tarmoq xatosi. Iltimos, qayta urinib ko'ring.",
+    "unauthorized": "Iltimos, tizimga kiring",
+    "notFound": "Topilmadi",
+    "serverError": "Server xatosi",
+    "fieldRequired": "Bu maydon majburiy",
+    "invalidPhone": "Noto'g'ri telefon raqam"
+  }
+}

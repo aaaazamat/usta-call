@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel
 from apps.masters.models import MasterProfile
@@ -33,8 +34,8 @@ class Review(TimeStampedModel):
     master_replied_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        verbose_name = "Sharh"
-        verbose_name_plural = "Sharhlar"
+        verbose_name = _("Sharh")
+        verbose_name_plural = _("Sharhlar")
         ordering = ("-created_at",)
         indexes = [
             models.Index(fields=["master", "-created_at"]),

@@ -1,0 +1,160 @@
+{
+  "common": {
+    "appName": "usta-call",
+    "save": "Saqlaw",
+    "cancel": "Biykar etiw",
+    "delete": "Óshiriw",
+    "edit": "Redaktsiyalaw",
+    "back": "Artqa",
+    "next": "Keyingi",
+    "loading": "Júkleniwde...",
+    "search": "Izlew",
+    "send": "Jiberiw",
+    "yes": "Awa",
+    "no": "Yaq",
+    "submit": "Jiberiw",
+    "close": "Jabıw",
+    "more": "Kóbirek",
+    "all": "Bárshe",
+    "from": "den",
+    "to": "deyin",
+    "soum": "soum"
+  },
+  "nav": {
+    "home": "Bas bet",
+    "masters": "Ustalar",
+    "orders": "Buyırtpalar",
+    "newOrder": "Jańa buyırtpa",
+    "bookings": "Bánt etiwler",
+    "chat": "Chat",
+    "dashboard": "Basqarıw",
+    "profile": "Profil",
+    "howItWorks": "Qalay isleydi",
+    "login": "Kiriw",
+    "register": "Dizimnen ótiw",
+    "logout": "Shıǵıw",
+    "language": "Til"
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Kiriw · usta-call",
+      "noAccount": "Esabıńız joq pa?",
+      "signUp": "Dizimnen ótiń"
+    },
+    "register": {
+      "metaTitle": "Dizimnen ótiw · usta-call",
+      "haveAccount": "Esabıńız bar ma?",
+      "signIn": "Kiriń",
+      "chooseRole": "Kim sıpatında dizimnen ótesiz?",
+      "asClient": "Klient",
+      "asMaster": "Usta"
+    },
+    "otp": {
+      "phonePlaceholder": "Telefon nomerińiz",
+      "enterPhone": "Telefon nomerińizdi kirgiziń",
+      "sendCode": "Kodtı jiberiw",
+      "enterCode": "Kelgen kodtı kirgiziń",
+      "verifyCode": "Tastıyıqlaw",
+      "resendCode": "Kodtı qaytadan jiberiw",
+      "welcome": "Xosh keldińiz!",
+      "loggedIn": "Sistemaǵa kirdińiz",
+      "invalidCode": "Qáte kod"
+    },
+    "google": {
+      "continueWith": "Google menen dawam etiw"
+    },
+    "telegram": {
+      "continueWith": "Telegram menen kiriw"
+    },
+    "or": "yamasa"
+  },
+  "home": {
+    "heroTitle": "Eń jaqsı ustalardı tabıń",
+    "heroSubtitle": "Santexnik, elektrik, qurıwshı hám basqa mıńlaǵan usta — bir qońıraw aralıǵında",
+    "ctaFindMaster": "Usta tabıw",
+    "ctaPostJob": "Buyırtpa beriw",
+    "categoriesTitle": "Atáqlı kategoriyalar",
+    "howItWorksTitle": "Bul qalay isleydi"
+  },
+  "masters": {
+    "listTitle": "Ustalar katalogı",
+    "filterCategory": "Kategoriya boyınsha",
+    "filterRegion": "Aymaq boyınsha",
+    "sortRating": "Reyting",
+    "sortNewest": "Jańalar",
+    "ratingLabel": "{rating} ({count} pikir)",
+    "experienceYears": "{years} jıl tájiriybe",
+    "availableNow": "Házir bos",
+    "notAvailable": "Házir bánt",
+    "viewProfile": "Profildi kóriw",
+    "bookMaster": "Bánt etiw",
+    "portfolioTitle": "Portfolio",
+    "reviewsTitle": "Pikirler",
+    "noReviews": "Hálishe pikirler joq"
+  },
+  "orders": {
+    "newTitle": "Jańa buyırtpa beriw",
+    "myTitle": "Meniń buyırtpalarım",
+    "feedTitle": "Jańa buyırtpalar",
+    "field": {
+      "title": "Qısqa tákırıp",
+      "description": "Tolıq súwretleme",
+      "address": "Mánzil",
+      "region": "Aymaq",
+      "category": "Kategoriya",
+      "budgetFrom": "Byudjet (den)",
+      "budgetTo": "Byudjet (deyin)",
+      "urgency": "Asıǵıslıq"
+    },
+    "submit": "Buyırtpanı jaylastırıw",
+    "status": {
+      "draft": "Qaralama",
+      "published": "Aktiv",
+      "matched": "Usta saylanǵan",
+      "inProgress": "Orınlanıp atır",
+      "completed": "Juwmaqlanǵan",
+      "cancelled": "Biykar etilgen"
+    },
+    "noOrders": "Hálishe buyırtpalar joq",
+    "respondToOrder": "Usınıs jiberiw",
+    "viewResponses": "Usınıslardı kóriw"
+  },
+  "chat": {
+    "title": "Xabarlar",
+    "noChats": "Hálishe chat joq",
+    "typeMessage": "Xabar jazıń...",
+    "send": "Jiberiw",
+    "online": "Onlayn",
+    "offline": "Oflayn"
+  },
+  "profile": {
+    "title": "Meniń profilim",
+    "personalInfo": "Shaxsiy maǵlıwmatlar",
+    "professionalInfo": "Kásibiy maǵlıwmatlar",
+    "fullName": "F.A.Á.",
+    "phone": "Telefon",
+    "bio": "Ózi haqqında",
+    "experience": "Tájiriybe (jıl)",
+    "hourlyRate": "Saatlıq baha",
+    "skills": "Sheberlikler",
+    "categories": "Kategoriyalar",
+    "regions": "Islew aymaqları",
+    "saveChanges": "Ózgerislerdi saqlaw",
+    "avatarUpload": "Avatar júklew"
+  },
+  "dashboard": {
+    "title": "Basqarıw paneli",
+    "activeOrders": "Aktiv buyırtpalar",
+    "completedOrders": "Juwmaqlanǵan",
+    "pendingRequests": "Kútilip atırǵan sorawlar",
+    "rating": "Reyting"
+  },
+  "errors": {
+    "networkError": "Tarmaq qátesi. Iltimas, qaytadan urınıp kóriń.",
+    "unauthorized": "Iltimas, sistemaǵa kiriń",
+    "notFound": "Tabılmadı",
+    "serverError": "Server qátesi",
+    "fieldRequired": "Bul orın májbúriy",
+    "invalidPhone": "Qáte telefon nomeri"
+  }
+}

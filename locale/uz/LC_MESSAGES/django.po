@@ -1,0 +1,215 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: uz\n"
+
+# ── Roles ──
+msgid "Mijoz"
+msgstr "Mijoz"
+
+msgid "Usta"
+msgstr "Usta"
+
+msgid "Admin"
+msgstr "Admin"
+
+# ── User fields ──
+msgid "Telefon"
+msgstr "Telefon"
+
+msgid "F.I.Sh."
+msgstr "F.I.Sh."
+
+msgid "Rol"
+msgstr "Rol"
+
+msgid "Avatar"
+msgstr "Avatar"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Google ID"
+msgstr "Google ID"
+
+# ── Master profile ──
+msgid "Ish qabul qiladimi"
+msgstr "Ish qabul qiladimi"
+
+msgid "Admin tasdiqlagan"
+msgstr "Admin tasdiqlagan"
+
+msgid "O'zi haqida"
+msgstr "O'zi haqida"
+
+# ── Master / Category / Skill / Region / Portfolio ──
+msgid "Nomi"
+msgstr "Nomi"
+
+msgid "Sarlavha"
+msgstr "Sarlavha"
+
+msgid "Tavsif"
+msgstr "Tavsif"
+
+msgid "Kategoriya"
+msgstr "Kategoriya"
+
+msgid "Kategoriyalar"
+msgstr "Kategoriyalar"
+
+msgid "Ko'nikma"
+msgstr "Ko'nikma"
+
+msgid "Ko'nikmalar"
+msgstr "Ko'nikmalar"
+
+msgid "Hudud"
+msgstr "Hudud"
+
+msgid "Hududlar"
+msgstr "Hududlar"
+
+msgid "Viloyat"
+msgstr "Viloyat"
+
+msgid "Tuman"
+msgstr "Tuman"
+
+msgid "Usta profili"
+msgstr "Usta profili"
+
+msgid "Ustalar profili"
+msgstr "Ustalar profili"
+
+msgid "Portfolio elementi"
+msgstr "Portfolio elementi"
+
+msgid "Portfolio elementlari"
+msgstr "Portfolio elementlari"
+
+msgid "Sinonimlar — AI matching uchun (masalan: ['kran', 'jo'mrak'])"
+msgstr "Sinonimlar — AI matching uchun (masalan: ['kran', 'jo'mrak'])"
+
+# ── Order ──
+msgid "Buyurtma"
+msgstr "Buyurtma"
+
+msgid "Buyurtmalar"
+msgstr "Buyurtmalar"
+
+msgid "Qoralama"
+msgstr "Qoralama"
+
+msgid "Aktiv (e'lon qilingan)"
+msgstr "Aktiv (e'lon qilingan)"
+
+msgid "Usta tanlangan"
+msgstr "Usta tanlangan"
+
+msgid "Ish davom etyapti"
+msgstr "Ish davom etyapti"
+
+msgid "Yakunlangan"
+msgstr "Yakunlangan"
+
+msgid "Bekor qilingan"
+msgstr "Bekor qilingan"
+
+msgid "Shoshilinch emas"
+msgstr "Shoshilinch emas"
+
+msgid "Oddiy"
+msgstr "Oddiy"
+
+msgid "Tezkor"
+msgstr "Tezkor"
+
+msgid "Favqulodda"
+msgstr "Favqulodda"
+
+# ── OrderResponse ──
+msgid "Kutilmoqda"
+msgstr "Kutilmoqda"
+
+msgid "Tanlangan"
+msgstr "Tanlangan"
+
+msgid "Rad etilgan"
+msgstr "Rad etilgan"
+
+msgid "Usta o'z taklifini qaytarib oldi"
+msgstr "Usta o'z taklifini qaytarib oldi"
+
+msgid "Necha soatda bajariladi"
+msgstr "Necha soatda bajariladi"
+
+# ── BookingRequest ──
+msgid "Band qilish so'rovi"
+msgstr "Band qilish so'rovi"
+
+msgid "Band qilish so'rovlari"
+msgstr "Band qilish so'rovlari"
+
+msgid "Yuborildi"
+msgstr "Yuborildi"
+
+msgid "Qabul qilindi"
+msgstr "Qabul qilindi"
+
+msgid "Rad etildi"
+msgstr "Rad etildi"
+
+msgid "Yakunlandi"
+msgstr "Yakunlandi"
+
+msgid "Bekor qilindi"
+msgstr "Bekor qilindi"
+
+# ── Chat ──
+msgid "Chat xonasi"
+msgstr "Chat xonasi"
+
+msgid "Chat xonalari"
+msgstr "Chat xonalari"
+
+# ── Reviews ──
+msgid "Sharh"
+msgstr "Sharh"
+
+msgid "Sharhlar"
+msgstr "Sharhlar"
+
+# ── Notifications ──
+msgid "Yangi mos buyurtma"
+msgstr "Yangi mos buyurtma"
+
+msgid "Yangi taklif"
+msgstr "Yangi taklif"
+
+msgid "Sizning taklifingiz qabul qilindi"
+msgstr "Sizning taklifingiz qabul qilindi"
+
+msgid "Buyurtma yakunlandi"
+msgstr "Buyurtma yakunlandi"
+
+msgid "Yangi sharh"
+msgstr "Yangi sharh"
+
+msgid "Yangi xabar"
+msgstr "Yangi xabar"
+
+msgid "Profil tasdiqlandi"
+msgstr "Profil tasdiqlandi"
+
+msgid "Tizim"
+msgstr "Tizim"
+
+msgid "Android"
+msgstr "Android"
+
+msgid "iOS"
+msgstr "iOS"
+
+msgid "Web (Web Push)"
+msgstr "Web (Web Push)"

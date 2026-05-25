@@ -2,19 +2,20 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel
 
 
 class NotificationType(models.TextChoices):
-    NEW_ORDER_MATCH = "new_order_match", "Yangi mos buyurtma"
-    NEW_RESPONSE = "new_response", "Yangi taklif"
-    RESPONSE_ACCEPTED = "response_accepted", "Sizning taklifingiz qabul qilindi"
-    ORDER_COMPLETED = "order_completed", "Buyurtma yakunlandi"
-    NEW_REVIEW = "new_review", "Yangi sharh"
-    NEW_MESSAGE = "new_message", "Yangi xabar"
-    PROFILE_APPROVED = "profile_approved", "Profil tasdiqlandi"
-    SYSTEM = "system", "Tizim"
+    NEW_ORDER_MATCH = "new_order_match", _("Yangi mos buyurtma")
+    NEW_RESPONSE = "new_response", _("Yangi taklif")
+    RESPONSE_ACCEPTED = "response_accepted", _("Sizning taklifingiz qabul qilindi")
+    ORDER_COMPLETED = "order_completed", _("Buyurtma yakunlandi")
+    NEW_REVIEW = "new_review", _("Yangi sharh")
+    NEW_MESSAGE = "new_message", _("Yangi xabar")
+    PROFILE_APPROVED = "profile_approved", _("Profil tasdiqlandi")
+    SYSTEM = "system", _("Tizim")
 
 
 class Notification(TimeStampedModel):
@@ -45,9 +46,9 @@ class DeviceToken(TimeStampedModel):
     """Push-notification uchun device token (FCM/APNS)."""
 
     class Platform(models.TextChoices):
-        ANDROID = "android", "Android"
-        IOS = "ios", "iOS"
-        WEB = "web", "Web (Web Push)"
+        ANDROID = "android", _("Android")
+        IOS = "ios", _("iOS")
+        WEB = "web", _("Web (Web Push)")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="device_tokens"

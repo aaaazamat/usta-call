@@ -1,0 +1,160 @@
+{
+  "common": {
+    "appName": "usta-call",
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "back": "Назад",
+    "next": "Далее",
+    "loading": "Загрузка...",
+    "search": "Поиск",
+    "send": "Отправить",
+    "yes": "Да",
+    "no": "Нет",
+    "submit": "Отправить",
+    "close": "Закрыть",
+    "more": "Больше",
+    "all": "Все",
+    "from": "от",
+    "to": "до",
+    "soum": "сум"
+  },
+  "nav": {
+    "home": "Главная",
+    "masters": "Мастера",
+    "orders": "Заказы",
+    "newOrder": "Новый заказ",
+    "bookings": "Бронирования",
+    "chat": "Чат",
+    "dashboard": "Панель",
+    "profile": "Профиль",
+    "howItWorks": "Как это работает",
+    "login": "Войти",
+    "register": "Регистрация",
+    "logout": "Выйти",
+    "language": "Язык"
+  },
+  "auth": {
+    "login": {
+      "metaTitle": "Вход · usta-call",
+      "noAccount": "Нет аккаунта?",
+      "signUp": "Зарегистрироваться"
+    },
+    "register": {
+      "metaTitle": "Регистрация · usta-call",
+      "haveAccount": "Уже есть аккаунт?",
+      "signIn": "Войти",
+      "chooseRole": "Кем вы регистрируетесь?",
+      "asClient": "Клиент",
+      "asMaster": "Мастер"
+    },
+    "otp": {
+      "phonePlaceholder": "Ваш номер телефона",
+      "enterPhone": "Введите номер телефона",
+      "sendCode": "Отправить код",
+      "enterCode": "Введите код из SMS",
+      "verifyCode": "Подтвердить",
+      "resendCode": "Отправить код заново",
+      "welcome": "Добро пожаловать!",
+      "loggedIn": "Вы вошли в систему",
+      "invalidCode": "Неверный код"
+    },
+    "google": {
+      "continueWith": "Продолжить с Google"
+    },
+    "telegram": {
+      "continueWith": "Войти через Telegram"
+    },
+    "or": "или"
+  },
+  "home": {
+    "heroTitle": "Найдите лучших мастеров",
+    "heroSubtitle": "Сантехник, электрик, строитель и тысячи других мастеров — на расстоянии одного звонка",
+    "ctaFindMaster": "Найти мастера",
+    "ctaPostJob": "Разместить заказ",
+    "categoriesTitle": "Популярные категории",
+    "howItWorksTitle": "Как это работает"
+  },
+  "masters": {
+    "listTitle": "Каталог мастеров",
+    "filterCategory": "По категории",
+    "filterRegion": "По региону",
+    "sortRating": "Рейтинг",
+    "sortNewest": "Новые",
+    "ratingLabel": "{rating} ({count} отзывов)",
+    "experienceYears": "{years} лет опыта",
+    "availableNow": "Свободен сейчас",
+    "notAvailable": "Сейчас занят",
+    "viewProfile": "Посмотреть профиль",
+    "bookMaster": "Забронировать",
+    "portfolioTitle": "Портфолио",
+    "reviewsTitle": "Отзывы",
+    "noReviews": "Отзывов пока нет"
+  },
+  "orders": {
+    "newTitle": "Новый заказ",
+    "myTitle": "Мои заказы",
+    "feedTitle": "Новые заказы",
+    "field": {
+      "title": "Краткий заголовок",
+      "description": "Подробное описание",
+      "address": "Адрес",
+      "region": "Регион",
+      "category": "Категория",
+      "budgetFrom": "Бюджет (от)",
+      "budgetTo": "Бюджет (до)",
+      "urgency": "Срочность"
+    },
+    "submit": "Разместить заказ",
+    "status": {
+      "draft": "Черновик",
+      "published": "Активный",
+      "matched": "Мастер выбран",
+      "inProgress": "Выполняется",
+      "completed": "Завершён",
+      "cancelled": "Отменён"
+    },
+    "noOrders": "Пока нет заказов",
+    "respondToOrder": "Отправить предложение",
+    "viewResponses": "Посмотреть предложения"
+  },
+  "chat": {
+    "title": "Сообщения",
+    "noChats": "Пока нет чатов",
+    "typeMessage": "Напишите сообщение...",
+    "send": "Отправить",
+    "online": "Онлайн",
+    "offline": "Не в сети"
+  },
+  "profile": {
+    "title": "Мой профиль",
+    "personalInfo": "Личные данные",
+    "professionalInfo": "Профессиональные данные",
+    "fullName": "Ф.И.О.",
+    "phone": "Телефон",
+    "bio": "О себе",
+    "experience": "Опыт (лет)",
+    "hourlyRate": "Цена за час",
+    "skills": "Навыки",
+    "categories": "Категории",
+    "regions": "Регионы работы",
+    "saveChanges": "Сохранить изменения",
+    "avatarUpload": "Загрузить аватар"
+  },
+  "dashboard": {
+    "title": "Панель управления",
+    "activeOrders": "Активные заказы",
+    "completedOrders": "Завершённые",
+    "pendingRequests": "Ожидающие запросы",
+    "rating": "Рейтинг"
+  },
+  "errors": {
+    "networkError": "Ошибка сети. Пожалуйста, попробуйте снова.",
+    "unauthorized": "Пожалуйста, войдите в систему",
+    "notFound": "Не найдено",
+    "serverError": "Ошибка сервера",
+    "fieldRequired": "Это поле обязательное",
+    "invalidPhone": "Неверный номер телефона"
+  }
+}

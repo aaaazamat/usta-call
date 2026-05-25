@@ -6,14 +6,15 @@ from datetime import timedelta
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel
 
 
 class Role(models.TextChoices):
-    CLIENT = "client", "Mijoz"
-    MASTER = "master", "Usta"
-    ADMIN = "admin", "Admin"
+    CLIENT = "client", _("Mijoz")
+    MASTER = "master", _("Usta")
+    ADMIN = "admin", _("Admin")
 
 
 class UserManager(BaseUserManager):
@@ -62,18 +63,18 @@ class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):
     # Telefon endi nullable — Google orqali kirgan foydalanuvchida bo'sh bo'lishi mumkin.
     # Lekin xizmat ko'rsatish uchun majburiy (modal orqali so'raymiz).
     phone = models.CharField(
-        "Telefon", max_length=20, unique=True, null=True, blank=True, db_index=True
+        _("Telefon"), max_length=20, unique=True, null=True, blank=True, db_index=True
     )
-    full_name = models.CharField("F.I.Sh.", max_length=120, blank=True)
-    role = models.CharField("Rol", max_length=10, choices=Role.choices, default=Role.CLIENT)
-    avatar = models.ImageField("Avatar", upload_to="avatars/", blank=True, null=True)
+    full_name = models.CharField(_("F.I.Sh."), max_length=120, blank=True)
+    role = models.CharField(_("Rol"), max_length=10, choices=Role.choices, default=Role.CLIENT)
+    avatar = models.ImageField(_("Avatar"), upload_to="avatars/", blank=True, null=True)
 
     # ── Google OAuth ──
     email = models.EmailField(
-        "Email", blank=True, null=True, unique=True, db_index=True
+        _("Email"), blank=True, null=True, unique=True, db_index=True
     )
     google_id = models.CharField(
-        "Google ID", max_length=80, blank=True, null=True, unique=True, db_index=True
+        _("Google ID"), max_length=80, blank=True, null=True, unique=True, db_index=True
     )
 
     # ── Telegram bot ──

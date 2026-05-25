@@ -1,31 +1,35 @@
 from django.contrib import admin
+from parler.admin import TranslatableAdmin
 from unfold.admin import ModelAdmin, TabularInline
 
 from .models import Category, MasterProfile, PortfolioImage, PortfolioItem, Region, Skill
 
 
+# Unfold + parler kombinatsiyasi — har ikkala parent kerak.
+class UnfoldTranslatableAdmin(TranslatableAdmin, ModelAdmin):
+    pass
+
+
 @admin.register(Category)
-class CategoryAdmin(ModelAdmin):
+class CategoryAdmin(UnfoldTranslatableAdmin):
     list_display = ("name", "slug", "parent", "order", "is_active")
     list_filter = ("is_active", "parent")
-    search_fields = ("name",)
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("translations__name",)
     list_editable = ("order", "is_active")
 
 
 @admin.register(Skill)
-class SkillAdmin(ModelAdmin):
+class SkillAdmin(UnfoldTranslatableAdmin):
     list_display = ("name", "category", "slug")
     list_filter = ("category",)
-    search_fields = ("name", "aliases")
-    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ("translations__name", "aliases")
 
 
 @admin.register(Region)
-class RegionAdmin(ModelAdmin):
+class RegionAdmin(UnfoldTranslatableAdmin):
     list_display = ("name", "kind", "parent")
     list_filter = ("kind", "parent")
-    search_fields = ("name",)
+    search_fields = ("translations__name",)
 
 
 class PortfolioImageInline(TabularInline):
@@ -34,15 +38,15 @@ class PortfolioImageInline(TabularInline):
 
 
 @admin.register(PortfolioItem)
-class PortfolioItemAdmin(ModelAdmin):
+class PortfolioItemAdmin(UnfoldTranslatableAdmin):
     list_display = ("title", "master", "category", "created_at")
     list_filter = ("category",)
-    search_fields = ("title", "master__user__phone")
+    search_fields = ("translations__title", "master__user__phone")
     inlines = [PortfolioImageInline]
 
 
 @admin.register(MasterProfile)
-class MasterProfileAdmin(ModelAdmin):
+class MasterProfileAdmin(UnfoldTranslatableAdmin):
     list_display = (
         "user",
         "is_approved",
@@ -52,7 +56,7 @@ class MasterProfileAdmin(ModelAdmin):
         "reviews_count_cache",
     )
     list_filter = ("is_approved", "is_available")
-    search_fields = ("user__phone", "user__full_name", "bio")
+    search_fields = ("user__phone", "user__full_name", "translations__bio")
     filter_horizontal = ("categories", "skills", "regions")
     list_editable = ("is_approved", "is_available")
     readonly_fields = ("rating_cache", "reviews_count_cache", "completed_orders_cache")

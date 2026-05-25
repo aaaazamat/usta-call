@@ -40,6 +40,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "django_filters",
     "channels",
+    "parler",
 ]
 
 LOCAL_APPS = [
@@ -62,6 +63,9 @@ MIDDLEWARE = [
     # SecurityMiddleware'dan keyin, lekin boshqalardan oldin bo'lishi shart.
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # LocaleMiddleware — Accept-Language headerni o'qib joriy tilni o'rnatadi.
+    # SessionMiddleware'dan keyin, CommonMiddleware'dan oldin bo'lishi shart.
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -126,6 +130,29 @@ LANGUAGE_CODE = "uz"
 TIME_ZONE = "Asia/Tashkent"
 USE_I18N = True
 USE_TZ = True
+
+# Qo'llab-quvvatlanadigan tillar: o'zbek, qoraqalpoq, rus
+LANGUAGES = [
+    ("uz", "Oʻzbekcha"),
+    ("kk", "Qaraqalpaqsha"),
+    ("ru", "Русский"),
+]
+LOCALE_PATHS = [BASE_DIR / "locale"]
+
+# django-parler — model tarjima konfiguratsiyasi
+PARLER_LANGUAGES = {
+    None: (
+        {"code": "uz"},
+        {"code": "kk"},
+        {"code": "ru"},
+    ),
+    "default": {
+        "fallback": "uz",
+        "fallbacks": ["uz", "ru"],
+        "hide_untranslated": False,
+    },
+}
+PARLER_DEFAULT_LANGUAGE_CODE = "uz"
 
 # Static / Media
 STATIC_URL = "/static/"

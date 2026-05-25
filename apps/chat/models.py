@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from django.conf import settings
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from apps.common.models import TimeStampedModel
 from apps.orders.models import Order
@@ -20,8 +21,8 @@ class ChatRoom(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "Chat xonasi"
-        verbose_name_plural = "Chat xonalari"
+        verbose_name = _("Chat xonasi")
+        verbose_name_plural = _("Chat xonalari")
         ordering = ("-updated_at",)
         indexes = [models.Index(fields=["client", "-updated_at"]), models.Index(fields=["master", "-updated_at"])]
 

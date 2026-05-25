@@ -1,0 +1,215 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: ru\n"
+
+# ── Roles ──
+msgid "Mijoz"
+msgstr "Клиент"
+
+msgid "Usta"
+msgstr "Мастер"
+
+msgid "Admin"
+msgstr "Администратор"
+
+# ── User fields ──
+msgid "Telefon"
+msgstr "Телефон"
+
+msgid "F.I.Sh."
+msgstr "Ф.И.О."
+
+msgid "Rol"
+msgstr "Роль"
+
+msgid "Avatar"
+msgstr "Аватар"
+
+msgid "Email"
+msgstr "Эл. почта"
+
+msgid "Google ID"
+msgstr "Google ID"
+
+# ── Master profile ──
+msgid "Ish qabul qiladimi"
+msgstr "Принимает заказы"
+
+msgid "Admin tasdiqlagan"
+msgstr "Одобрен администратором"
+
+msgid "O'zi haqida"
+msgstr "О себе"
+
+# ── Master / Category / Skill / Region / Portfolio ──
+msgid "Nomi"
+msgstr "Название"
+
+msgid "Sarlavha"
+msgstr "Заголовок"
+
+msgid "Tavsif"
+msgstr "Описание"
+
+msgid "Kategoriya"
+msgstr "Категория"
+
+msgid "Kategoriyalar"
+msgstr "Категории"
+
+msgid "Ko'nikma"
+msgstr "Навык"
+
+msgid "Ko'nikmalar"
+msgstr "Навыки"
+
+msgid "Hudud"
+msgstr "Регион"
+
+msgid "Hududlar"
+msgstr "Регионы"
+
+msgid "Viloyat"
+msgstr "Область"
+
+msgid "Tuman"
+msgstr "Район"
+
+msgid "Usta profili"
+msgstr "Профиль мастера"
+
+msgid "Ustalar profili"
+msgstr "Профили мастеров"
+
+msgid "Portfolio elementi"
+msgstr "Элемент портфолио"
+
+msgid "Portfolio elementlari"
+msgstr "Элементы портфолио"
+
+msgid "Sinonimlar — AI matching uchun (masalan: ['kran', 'jo'mrak'])"
+msgstr "Синонимы — для AI-сопоставления (например: ['кран', 'смеситель'])"
+
+# ── Order ──
+msgid "Buyurtma"
+msgstr "Заказ"
+
+msgid "Buyurtmalar"
+msgstr "Заказы"
+
+msgid "Qoralama"
+msgstr "Черновик"
+
+msgid "Aktiv (e'lon qilingan)"
+msgstr "Активный (опубликован)"
+
+msgid "Usta tanlangan"
+msgstr "Мастер выбран"
+
+msgid "Ish davom etyapti"
+msgstr "Работа выполняется"
+
+msgid "Yakunlangan"
+msgstr "Завершён"
+
+msgid "Bekor qilingan"
+msgstr "Отменён"
+
+msgid "Shoshilinch emas"
+msgstr "Не срочно"
+
+msgid "Oddiy"
+msgstr "Обычная"
+
+msgid "Tezkor"
+msgstr "Срочно"
+
+msgid "Favqulodda"
+msgstr "Экстренно"
+
+# ── OrderResponse ──
+msgid "Kutilmoqda"
+msgstr "Ожидается"
+
+msgid "Tanlangan"
+msgstr "Выбран"
+
+msgid "Rad etilgan"
+msgstr "Отклонён"
+
+msgid "Usta o'z taklifini qaytarib oldi"
+msgstr "Мастер отозвал своё предложение"
+
+msgid "Necha soatda bajariladi"
+msgstr "За сколько часов выполнит"
+
+# ── BookingRequest ──
+msgid "Band qilish so'rovi"
+msgstr "Запрос на бронирование"
+
+msgid "Band qilish so'rovlari"
+msgstr "Запросы на бронирование"
+
+msgid "Yuborildi"
+msgstr "Отправлено"
+
+msgid "Qabul qilindi"
+msgstr "Принято"
+
+msgid "Rad etildi"
+msgstr "Отклонено"
+
+msgid "Yakunlandi"
+msgstr "Завершено"
+
+msgid "Bekor qilindi"
+msgstr "Отменено"
+
+# ── Chat ──
+msgid "Chat xonasi"
+msgstr "Комната чата"
+
+msgid "Chat xonalari"
+msgstr "Комнаты чата"
+
+# ── Reviews ──
+msgid "Sharh"
+msgstr "Отзыв"
+
+msgid "Sharhlar"
+msgstr "Отзывы"
+
+# ── Notifications ──
+msgid "Yangi mos buyurtma"
+msgstr "Новый подходящий заказ"
+
+msgid "Yangi taklif"
+msgstr "Новое предложение"
+
+msgid "Sizning taklifingiz qabul qilindi"
+msgstr "Ваше предложение принято"
+
+msgid "Buyurtma yakunlandi"
+msgstr "Заказ завершён"
+
+msgid "Yangi sharh"
+msgstr "Новый отзыв"
+
+msgid "Yangi xabar"
+msgstr "Новое сообщение"
+
+msgid "Profil tasdiqlandi"
+msgstr "Профиль подтверждён"
+
+msgid "Tizim"
+msgstr "Система"
+
+msgid "Android"
+msgstr "Android"
+
+msgid "iOS"
+msgstr "iOS"
+
+msgid "Web (Web Push)"
+msgstr "Веб (Web Push)"

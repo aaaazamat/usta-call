@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   LogOut,
   Menu as MenuIcon,
@@ -11,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { Container } from "@/components/layout/container";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,33 +27,35 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuthStore } from "@/lib/auth/store";
+import { Link, usePathname } from "@/i18n/navigation";
 
 interface NavLink {
   href: string;
-  label: string;
+  labelKey: string;
 }
 
 const GUEST_LINKS: NavLink[] = [
-  { href: "/masters", label: "Ustalar" },
-  { href: "/orders/new", label: "Buyurtma berish" },
-  { href: "/how-it-works", label: "Qanday ishlaydi" },
+  { href: "/masters", labelKey: "masters" },
+  { href: "/orders/new", labelKey: "newOrder" },
+  { href: "/how-it-works", labelKey: "howItWorks" },
 ];
 
 const CLIENT_LINKS: NavLink[] = [
-  { href: "/masters", label: "Ustalar" },
-  { href: "/orders/new", label: "Buyurtma berish" },
-  { href: "/orders", label: "Buyurtmalarim" },
-  { href: "/bookings", label: "So'rovlarim" },
+  { href: "/masters", labelKey: "masters" },
+  { href: "/orders/new", labelKey: "newOrder" },
+  { href: "/orders", labelKey: "orders" },
+  { href: "/bookings", labelKey: "bookings" },
 ];
 
 const MASTER_LINKS: NavLink[] = [
-  { href: "/orders/feed", label: "Buyurtmalar" },
-  { href: "/bookings", label: "Kelgan so'rovlar" },
-  { href: "/dashboard", label: "Usta paneli" },
+  { href: "/orders/feed", labelKey: "orders" },
+  { href: "/bookings", labelKey: "bookings" },
+  { href: "/dashboard", labelKey: "dashboard" },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
+  const t = useTranslations("nav");
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -98,7 +100,7 @@ export function Navbar() {
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/60")
                 }
               >
-                {link.label}
+                {t(link.labelKey)}
                 {active && (
                   <span className="absolute inset-x-4 -bottom-0.5 h-[3px] rounded-full bg-gradient-to-r from-primary via-purple-500 to-pink-500" />
                 )}
@@ -109,6 +111,10 @@ export function Navbar() {
 
         {/* O'ng tarafdagi tugmalar */}
         <div className="flex items-center gap-2 md:gap-3">
+          <div className="hidden sm:block">
+            <LanguageSwitcher />
+          </div>
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-2 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition hover:opacity-80">
@@ -123,7 +129,7 @@ export function Navbar() {
                 <div className="px-2 py-1.5 text-sm">
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {user.full_name || "Foydalanuvchi"}
+                      {user.full_name || t("profile")}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {user.phone ?? user.email}
@@ -132,30 +138,30 @@ export function Navbar() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem render={<Link href="/profile" />}>
-                  Profil
+                  {t("profile")}
                 </DropdownMenuItem>
                 {user.role === "master" ? (
                   <>
                     <DropdownMenuItem render={<Link href="/dashboard" />}>
-                      Usta paneli
+                      {t("dashboard")}
                     </DropdownMenuItem>
                     <DropdownMenuItem render={<Link href="/bookings" />}>
-                      Kelgan so&apos;rovlar
+                      {t("bookings")}
                     </DropdownMenuItem>
                   </>
                 ) : (
                   <>
                     <DropdownMenuItem render={<Link href="/orders" />}>
-                      Buyurtmalarim
+                      {t("orders")}
                     </DropdownMenuItem>
                     <DropdownMenuItem render={<Link href="/bookings" />}>
-                      So&apos;rovlarim
+                      {t("bookings")}
                     </DropdownMenuItem>
                   </>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={logout} variant="destructive">
-                  <LogOut className="mr-2 h-4 w-4" /> Chiqish
+                  <LogOut className="mr-2 h-4 w-4" /> {t("logout")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -165,14 +171,14 @@ export function Navbar() {
                 href="/login"
                 className="hidden md:inline-flex items-center h-11 px-5 text-base font-medium rounded-xl text-foreground hover:bg-muted transition-colors"
               >
-                Kirish
+                {t("login")}
               </Link>
               <Link
                 href="/register"
                 className="relative hidden md:inline-flex items-center h-11 px-6 text-base font-semibold rounded-xl text-white shadow-md hover:shadow-xl transition-all bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:scale-105 active:scale-100"
               >
                 <span className="absolute inset-0 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 blur-md opacity-40 -z-10" />
-                Ro&apos;yxatdan o&apos;tish
+                {t("register")}
               </Link>
             </>
           )}
@@ -183,8 +189,9 @@ export function Navbar() {
               <MenuIcon className="h-5 w-5" />
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
-              <SheetHeader className="border-b p-4">
-                <SheetTitle className="text-left">Menyu</SheetTitle>
+              <SheetHeader className="border-b p-4 flex flex-row items-center justify-between">
+                <SheetTitle className="text-left">{t("home")}</SheetTitle>
+                <LanguageSwitcher />
               </SheetHeader>
 
               <nav className="flex flex-col p-2">
@@ -202,7 +209,7 @@ export function Navbar() {
                           : "text-foreground hover:bg-muted")
                       }
                     >
-                      {link.label}
+                      {t(link.labelKey)}
                       {active && (
                         <span className="ml-auto h-2 w-2 rounded-full bg-primary" />
                       )}
@@ -217,14 +224,14 @@ export function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center justify-center h-11 px-5 text-base font-medium rounded-xl border hover:bg-muted transition-colors"
                     >
-                      Kirish
+                      {t("login")}
                     </Link>
                     <Link
                       href="/register"
                       onClick={() => setMobileOpen(false)}
                       className="inline-flex items-center justify-center h-11 px-5 text-base font-semibold rounded-xl text-white shadow-md bg-gradient-to-br from-primary via-purple-500 to-pink-500 active:scale-95"
                     >
-                      Ro&apos;yxatdan o&apos;tish
+                      {t("register")}
                     </Link>
                   </div>
                 )}
@@ -236,7 +243,7 @@ export function Navbar() {
                       onClick={() => setMobileOpen(false)}
                       className="flex items-center px-4 py-3 rounded-xl text-base font-medium text-foreground hover:bg-muted transition-colors"
                     >
-                      Profil
+                      {t("profile")}
                     </Link>
                     <button
                       type="button"
@@ -247,7 +254,7 @@ export function Navbar() {
                       className="w-full flex items-center px-4 py-3 rounded-xl text-base font-medium text-destructive hover:bg-destructive/10 transition-colors text-left"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Chiqish
+                      {t("logout")}
                     </button>
                   </div>
                 )}

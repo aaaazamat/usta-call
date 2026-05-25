@@ -18,8 +18,21 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   if (access) {
     config.headers.set("Authorization", `Bearer ${access}`);
   }
+  // Joriy til (next-intl cookie) ni backend'ga yetkazamiz —
+  // Django `LocaleMiddleware` shu header asosida `request.LANGUAGE_CODE` ni o'rnatadi
+  // va parler `safe_translation_getter` shu tilda javob qaytaradi.
+  if (typeof document !== "undefined") {
+    const locale = readLocaleCookie();
+    if (locale) config.headers.set("Accept-Language", locale);
+  }
   return config;
 });
+
+function readLocaleCookie(): string | null {
+  // next-intl middleware sukut bo'yicha "NEXT_LOCALE" cookie'ga yozadi
+  const match = document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
 type RetriableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
 

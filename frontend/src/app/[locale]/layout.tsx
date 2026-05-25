@@ -33,7 +33,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
   return {
-    title: `usta-call — ${t("heroTitle")}`,
+    title: `usta-call — ${t("heroTitle1")} ${t("heroTitleAccent")} ${t("heroTitle2")}`.trim(),
     description: t("heroSubtitle"),
   };
 }

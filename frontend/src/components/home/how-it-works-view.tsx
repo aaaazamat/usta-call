@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   ArrowRight,
   CheckCircle2,
@@ -22,6 +22,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
+import { Link } from "@/i18n/navigation";
 
 const fadeInUp = {
   initial: { opacity: 0, y: 30 },
@@ -52,6 +53,7 @@ export function HowItWorksView() {
 
 /* ─────────── Hero ─────────── */
 function Hero() {
+  const t = useTranslations("howItWorks");
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -80,7 +82,7 @@ function Hero() {
             className="inline-flex items-center gap-2 rounded-full border bg-white/80 backdrop-blur px-4 py-1.5 text-sm text-muted-foreground mb-6 shadow-sm"
           >
             <Zap className="h-4 w-4 text-primary" />
-            Soda va tushunarli
+            {t("heroBadge")}
           </motion.div>
 
           <motion.h1
@@ -89,8 +91,8 @@ function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] mb-6"
           >
-            usta-call qanday <br />
-            <span className="gradient-text">ishlaydi?</span>
+            {t("heroTitle1")} <br />
+            <span className="gradient-text">{t("heroTitleAccent")}</span>
           </motion.h1>
 
           <motion.p
@@ -99,8 +101,7 @@ function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-xl text-muted-foreground"
           >
-            Mijoz uchun — bir daqiqada eng mos ustani toping. Usta uchun — yangi
-            mijozlar va doimiy daromad. Quyida har bir bosqich.
+            {t("heroSubtitle")}
           </motion.p>
         </motion.div>
       </Container>
@@ -110,32 +111,33 @@ function Hero() {
 
 /* ─────────── Mijoz uchun oqim ─────────── */
 function ClientFlowSection() {
+  const t = useTranslations("howItWorks.clientFlow");
   const steps = [
     {
       icon: ClipboardList,
-      title: "Buyurtma yarating",
-      text: "Sarlavha, batafsil tavsif, manzil. Kerak bo'lsa rasm yuklang. Bir necha daqiqa.",
+      title: t("step1Title"),
+      text: t("step1Text"),
       color: "from-blue-500 to-cyan-500",
       bg: "bg-blue-50",
     },
     {
       icon: Sparkles,
-      title: "AI sizga ustalarni topadi",
-      text: "Sun'iy intellekt buyurtmangizni tahlil qilib, eng mos ustalar ro'yxatini chiqaradi.",
+      title: t("step2Title"),
+      text: t("step2Text"),
       color: "from-purple-500 to-pink-500",
       bg: "bg-purple-50",
     },
     {
       icon: HandshakeIcon,
-      title: "Ustani band qiling",
-      text: "Tavsiyadan ustani tanlang. 'Band qilish' bosing — usta sizga qo'ng'iroq qiladi.",
+      title: t("step3Title"),
+      text: t("step3Text"),
       color: "from-amber-500 to-orange-500",
       bg: "bg-amber-50",
     },
     {
       icon: Star,
-      title: "Bahosini bering",
-      text: "Ish bajarilgach, ustaga sharh qoldiring va boshqalarga yo'l ko'rsating.",
+      title: t("step4Title"),
+      text: t("step4Text"),
       color: "from-emerald-500 to-green-500",
       bg: "bg-emerald-50",
     },
@@ -147,13 +149,13 @@ function ClientFlowSection() {
         <motion.div {...fadeInUp} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-3 font-medium">
             <Users className="h-4 w-4" />
-            Mijozlar uchun
+            {t("badge")}
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            4 ta oddiy <span className="gradient-text">qadam</span>
+            {t("title1")} <span className="gradient-text">{t("titleAccent")}</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Vaqtingizni tejaymiz — bir necha daqiqa ichida eng yaxshi taklifni olasiz
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -200,7 +202,7 @@ function ClientFlowSection() {
 
         <motion.div {...fadeInUp} className="mt-12 text-center">
           <Button size="lg" render={<Link href="/orders/new" />}>
-            Buyurtma berishni boshlash
+            {t("cta")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </motion.div>
@@ -211,6 +213,7 @@ function ClientFlowSection() {
 
 /* ─────────── Aloqa bo'limi ─────────── */
 function ContactSection() {
+  const t = useTranslations("howItWorks.contact");
   return (
     <section className="py-20 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5 border-y">
       <Container>
@@ -218,15 +221,15 @@ function ContactSection() {
           <motion.div {...fadeInUp}>
             <div className="inline-flex items-center gap-2 rounded-full bg-background border px-3 py-1 text-sm mb-4 shadow-sm">
               <MessageCircle className="h-4 w-4 text-primary" />
-              <span className="text-muted-foreground">Aloqa qulayligi</span>
+              <span className="text-muted-foreground">{t("badge")}</span>
             </div>
             <h3 className="text-3xl md:text-4xl font-bold mb-4">
-              Ikki xil <span className="gradient-text">bog&apos;lanish</span> usuli
+              {t("title1")}{" "}
+              <span className="gradient-text">{t("titleAccent")}</span>{" "}
+              {t("title2")}
             </h3>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Ustani band qilganingizdan keyin u sizga to&apos;g&apos;ridan-to&apos;g&apos;ri
-              qo&apos;ng&apos;iroq qiladi. Yoki saytdagi telefon raqami orqali siz qo&apos;ng&apos;iroq
-              qila olasiz.
+              {t("subtitle")}
             </p>
 
             <div className="space-y-3">
@@ -241,9 +244,9 @@ function ContactSection() {
                   <Phone className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Telefon qo&apos;ng&apos;iroq</p>
+                  <p className="font-semibold">{t("phoneTitle")}</p>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    Bevosita ustaning raqamiga qo&apos;ng&apos;iroq qiling
+                    {t("phoneText")}
                   </p>
                 </div>
               </motion.div>
@@ -259,9 +262,9 @@ function ContactSection() {
                   <HandshakeIcon className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Band qilish so&apos;rovi</p>
+                  <p className="font-semibold">{t("bookTitle")}</p>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    Usta sizga o&apos;zi qo&apos;ng&apos;iroq qiladi va kelishadi
+                    {t("bookText")}
                   </p>
                 </div>
               </motion.div>
@@ -284,17 +287,17 @@ function ContactSection() {
                     <Sparkles className="h-6 w-6" />
                   </div>
                   <div>
-                    <p className="font-bold text-lg">AI matching</p>
-                    <p className="text-xs text-muted-foreground">Aqlli moslashtirish</p>
+                    <p className="font-bold text-lg">{t("aiTitle")}</p>
+                    <p className="text-xs text-muted-foreground">{t("aiSubtitle")}</p>
                   </div>
                 </div>
 
                 <ul className="space-y-3">
                   {[
-                    "Buyurtma matnidan kasbni avtomatik aniqlaydi",
-                    "Reyting va tajribani inobatga oladi",
-                    "Hududingizdagi ustalarni topadi",
-                    "Mos kelish darajasini foiz bilan ko'rsatadi",
+                    t("aiBullet1"),
+                    t("aiBullet2"),
+                    t("aiBullet3"),
+                    t("aiBullet4"),
                   ].map((item, idx) => (
                     <motion.li
                       key={item}
@@ -320,31 +323,32 @@ function ContactSection() {
 
 /* ─────────── Usta uchun oqim ─────────── */
 function MasterFlowSection() {
+  const t = useTranslations("howItWorks.masterFlow");
   const steps = [
     {
       icon: UserPlus,
-      title: "Ro'yxatdan o'ting",
-      text: "Telefon raqamingiz bilan ro'yxatdan o'ting va o'zingizni usta sifatida belgilang.",
+      title: t("step1Title"),
+      text: t("step1Text"),
     },
     {
       icon: Wrench,
-      title: "Profilingizni to'ldiring",
-      text: "Bio yozing, kasblaringizni tanlang (bitta yoki bir nechta), narx va hududlarni belgilang.",
+      title: t("step2Title"),
+      text: t("step2Text"),
     },
     {
       icon: ClipboardList,
-      title: "Portfolio yuklang",
-      text: "Avval bajargan ishlaringizning rasmlarini joylashtiring — mijozlar ishonchli usta tanlaydi.",
+      title: t("step3Title"),
+      text: t("step3Text"),
     },
     {
       icon: Search,
-      title: "Buyurtmalarni ko'ring",
-      text: "Kasbingiz va hududingizga mos buyurtmalar avtomatik chiqadi.",
+      title: t("step4Title"),
+      text: t("step4Text"),
     },
     {
       icon: Send,
-      title: "So'rovlarni qabul qiling",
-      text: "Mijozlar sizni band qiladi — telefon orqali bog'lanib, kelishasiz va ishni bajarasiz.",
+      title: t("step5Title"),
+      text: t("step5Text"),
     },
   ];
 
@@ -354,13 +358,13 @@ function MasterFlowSection() {
         <motion.div {...fadeInUp} className="text-center mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary mb-3 font-medium">
             <Wrench className="h-4 w-4" />
-            Ustalar uchun
+            {t("badge")}
           </div>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            5 ta qadamda <span className="gradient-text">ish topish</span>
+            {t("title1")} <span className="gradient-text">{t("titleAccent")}</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Yangi mijozlar va doimiy daromad — hech qanday to&apos;lov yo&apos;q
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -398,7 +402,7 @@ function MasterFlowSection() {
 
         <motion.div {...fadeInUp} className="mt-12 text-center">
           <Button size="lg" render={<Link href="/register?role=master" />}>
-            Usta sifatida ro&apos;yxatdan o&apos;tish
+            {t("cta")}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </motion.div>
@@ -409,31 +413,14 @@ function MasterFlowSection() {
 
 /* ─────────── FAQ ─────────── */
 function FaqSection() {
+  const t = useTranslations("howItWorks.faq");
   const faqs = [
-    {
-      q: "Xizmat to'lovli mi?",
-      a: "Hozircha sayt to'liq bepul — mijoz ham, usta ham hech qanday to'lov to'lamaydi. Faqat ish bahosi mijoz va usta o'rtasida kelishilgan miqdorda bo'ladi.",
-    },
-    {
-      q: "Usta qancha kasbga ega bo'lishi mumkin?",
-      a: "Cheklov yo'q. Profilingizda bir nechta kasb (kategoriya) tanlasangiz, har biriga oid buyurtmalar sizga ko'rinadi.",
-    },
-    {
-      q: "AI qanday qilib mos ustani topadi?",
-      a: "Buyurtmangiz matnini tahlil qilib, kerakli kasb va aniq ko'nikmalarni aniqlaydi. So'ng tasdiqlangan ustalardan kasbi, hududi va reytingi mos keladiganlarni reyt qiladi.",
-    },
-    {
-      q: "Pulni qanday topshiraman?",
-      a: "To'lov mijoz va usta o'rtasida to'g'ridan-to'g'ri amalga oshiriladi — naqd, bank kartasi yoki o'zaro kelishuvga binoan. Saytda to'lov tizimi yo'q.",
-    },
-    {
-      q: "Sharhlar haqiqiymi?",
-      a: "Sharhni faqat yakunlangan buyurtma egasi yoza oladi. Har bir buyurtma uchun bittadan sharh — sun'iy reyting qo'yish mumkin emas.",
-    },
-    {
-      q: "Usta yomon ishlasa nima qilish kerak?",
-      a: "Past baho qo'ying va sharh yozing — bu boshqa mijozlarga yordam beradi. Yomon ishlagan ustani admin moderatsiyaga jo'natamiz.",
-    },
+    { q: t("q1"), a: t("a1") },
+    { q: t("q2"), a: t("a2") },
+    { q: t("q3"), a: t("a3") },
+    { q: t("q4"), a: t("a4") },
+    { q: t("q5"), a: t("a5") },
+    { q: t("q6"), a: t("a6") },
   ];
 
   return (
@@ -441,11 +428,10 @@ function FaqSection() {
       <Container>
         <motion.div {...fadeInUp} className="text-center mb-12 max-w-2xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Tez-tez beriladigan <span className="gradient-text">savollar</span>
+            {t("title1")}{" "}
+            <span className="gradient-text">{t("titleAccent")}</span>
           </h2>
-          <p className="text-muted-foreground">
-            Eng ko&apos;p so&apos;raladigan savollarga aniq javoblar
-          </p>
+          <p className="text-muted-foreground">{t("subtitle")}</p>
         </motion.div>
 
         <motion.div {...stagger} className="max-w-3xl mx-auto space-y-3">
@@ -498,6 +484,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 /* ─────────── CTA ─────────── */
 function CtaSection() {
+  const t = useTranslations("howItWorks.cta");
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10" />
@@ -508,28 +495,27 @@ function CtaSection() {
         <motion.div {...fadeInUp} className="max-w-3xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 backdrop-blur px-4 py-1.5 text-sm mb-6">
             <Zap className="h-4 w-4 text-primary" />
-            Hozir boshlang
+            {t("badge")}
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            <span className="gradient-text">Boshlashga</span> tayyormisiz?
+            <span className="gradient-text">{t("titleAccent")}</span> {t("title2")}
           </h2>
           <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
-            Hozir boshlasangiz, bir necha daqiqada eng mos ustalarni topasiz. Hech
-            qanday to&apos;lov yoki obuna kerakmas.
+            {t("subtitle")}
           </p>
 
           <div className="flex flex-wrap gap-3 justify-center">
             <Button size="lg" render={<Link href="/orders/new" />}>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Buyurtma berish
+              {t("order")}
             </Button>
             <Button
               size="lg"
               variant="outline"
               render={<Link href="/register?role=master" />}
             >
-              Usta sifatida qo&apos;shilish
+              {t("joinMaster")}
             </Button>
           </div>
         </motion.div>

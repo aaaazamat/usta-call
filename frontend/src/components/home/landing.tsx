@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import {
   ArrowRight,
   CheckCircle2,
@@ -19,6 +19,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
+import { Link } from "@/i18n/navigation";
 import { useCategories, useMasters } from "@/lib/api/masters-hooks";
 import { getCategoryIcon } from "@/lib/category-icons";
 
@@ -51,6 +52,7 @@ export function Landing() {
 
 /* ─────────── Hero ─────────── */
 function Hero() {
+  const t = useTranslations("home");
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
@@ -74,7 +76,7 @@ function Hero() {
             className="inline-flex items-center gap-2 rounded-full border bg-white/80 backdrop-blur px-3 md:px-4 py-1.5 text-xs md:text-sm text-muted-foreground mb-5 md:mb-6 shadow-sm"
           >
             <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary animate-pulse" />
-            AI yordamida eng mos ustani toping
+            {t("heroBadge")}
           </motion.div>
 
           <motion.h1
@@ -83,8 +85,8 @@ function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] md:leading-[1.05] mb-5 md:mb-6"
           >
-            Kerakli ustani <br className="hidden sm:block" />
-            <span className="gradient-text">bir daqiqada</span> toping
+            {t("heroTitle1")} <br className="hidden sm:block" />
+            <span className="gradient-text">{t("heroTitleAccent")}</span> {t("heroTitle2")}
           </motion.h1>
 
           <motion.p
@@ -93,8 +95,7 @@ function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-base md:text-xl text-muted-foreground mb-8 md:mb-10 max-w-2xl mx-auto px-2"
           >
-            Santexnik, elektrik, quruvchi va boshqa minglab ustalar — barchasi bir
-            joyda. Ishni tasvirlang, AI siz uchun eng mosini tanlab beradi.
+            {t("heroSubtitle")}
           </motion.p>
 
           <motion.div
@@ -104,7 +105,7 @@ function Hero() {
             className="flex flex-col sm:flex-row gap-3 justify-center px-4 sm:px-0"
           >
             <Button size="lg" render={<Link href="/orders/new" />} className="w-full sm:w-auto">
-              Buyurtma berish
+              {t("ctaPostJob")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
             <Button
@@ -113,7 +114,7 @@ function Hero() {
               render={<Link href="/masters" />}
               className="w-full sm:w-auto"
             >
-              Ustalarni ko&apos;rish
+              {t("ctaFindMaster")}
             </Button>
           </motion.div>
 
@@ -137,7 +138,7 @@ function Hero() {
                   <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <div className="text-xs">500+ mamnun mijozlar</div>
+              <div className="text-xs">{t("trustBadge")}</div>
             </div>
           </motion.div>
         </motion.div>
@@ -148,6 +149,7 @@ function Hero() {
 
 /* ─────────── Categories ─────────── */
 function CategoriesSection() {
+  const t = useTranslations("home");
   const { data: categories } = useCategories();
   const topCategories = categories?.filter((c) => !c.parent) ?? [];
 
@@ -156,11 +158,12 @@ function CategoriesSection() {
       <Container>
         <motion.div {...fadeInUp} className="text-center mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            Qaysi <span className="gradient-text">kasb</span> kerak?
+            {t("categoriesTitle1")}{" "}
+            <span className="gradient-text">{t("categoriesTitleAccent")}</span>{" "}
+            {t("categoriesTitle2")}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            11 ta yo&apos;nalishda yuzlab tasdiqlangan ustalar. Birini tanlang
-            yoki AI sizga eng mosini topib beradi.
+            {t("categoriesSubtitle")}
           </p>
         </motion.div>
 
@@ -195,11 +198,12 @@ function CategoriesSection() {
 
 /* ─────────── Stats ─────────── */
 function StatsSection() {
+  const t = useTranslations("home.stats");
   const stats = [
-    { value: "30+", label: "Tasdiqlangan ustalar", icon: Users },
-    { value: "100%", label: "Tekin xizmat", icon: ShieldCheck },
-    { value: "AI", label: "Aqlli moslashtirish", icon: Sparkles },
-    { value: "24/7", label: "Doimo ochiq", icon: MessageCircle },
+    { value: "30+", label: t("masters"), icon: Users },
+    { value: "100%", label: t("free"), icon: ShieldCheck },
+    { value: "AI", label: t("ai"), icon: Sparkles },
+    { value: "24/7", label: t("always"), icon: MessageCircle },
   ];
 
   return (
@@ -232,6 +236,7 @@ function StatsSection() {
 
 /* ─────────── Featured masters ─────────── */
 function FeaturedMastersSection() {
+  const t = useTranslations("home");
   const { data, isLoading } = useMasters({ ordering: "-rating_cache" });
   const masters = data?.results.slice(0, 6) ?? [];
 
@@ -241,17 +246,15 @@ function FeaturedMastersSection() {
         <motion.div {...fadeInUp} className="flex items-end justify-between gap-4 mb-10 flex-wrap">
           <div>
             <h2 className="text-3xl md:text-5xl font-bold mb-3">
-              <span className="gradient-text">Top</span> ustalar
+              <span className="gradient-text">{t("topMasters1")}</span> {t("topMasters2")}
             </h2>
-            <p className="text-muted-foreground">
-              Eng yuqori reytingdagi ishonchli ustalar
-            </p>
+            <p className="text-muted-foreground">{t("topMastersSubtitle")}</p>
           </div>
           <Link
             href="/masters"
             className="text-primary font-medium hover:underline inline-flex items-center gap-1"
           >
-            Barchasini ko&apos;rish <ArrowRight className="h-4 w-4" />
+            {t("viewAll")} <ArrowRight className="h-4 w-4" />
           </Link>
         </motion.div>
 
@@ -292,11 +295,11 @@ function FeaturedMastersSection() {
                             <span className="text-foreground font-medium">
                               {rating.toFixed(1)}
                             </span>
-                            <span>· {m.completed_orders_cache} ish</span>
+                            <span>· {t("workCount", { count: m.completed_orders_cache })}</span>
                           </div>
                         ) : (
                           <div className="text-xs text-muted-foreground mt-0.5">
-                            Yangi usta
+                            {t("newMaster")}
                           </div>
                         )}
                       </div>
@@ -334,23 +337,24 @@ function FeaturedMastersSection() {
 
 /* ─────────── How it works ─────────── */
 function HowItWorksSection() {
+  const t = useTranslations("home");
   const steps = [
     {
       icon: ClipboardList,
-      title: "Buyurtma yarating",
-      text: "Nima kerakligini yozing, manzil va rasm qo'shing — bir daqiqada bo'ladi.",
+      title: t("step1Title"),
+      text: t("step1Text"),
       color: "from-blue-500 to-cyan-500",
     },
     {
       icon: Sparkles,
-      title: "AI ustalar tanlaydi",
-      text: "Sun'iy intellekt buyurtmangizni tahlil qilib, eng mos ustalar ro'yxatini chiqaradi.",
+      title: t("step2Title"),
+      text: t("step2Text"),
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: HandshakeIcon,
-      title: "Band qiling",
-      text: "Ustani band qiling, u sizga qo'ng'iroq qiladi va kelishadi. Tamom!",
+      title: t("step3Title"),
+      text: t("step3Text"),
       color: "from-amber-500 to-orange-500",
     },
   ];
@@ -360,10 +364,11 @@ function HowItWorksSection() {
       <Container>
         <motion.div {...fadeInUp} className="text-center mb-14">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
-            3 ta oson <span className="gradient-text">qadam</span>
+            {t("howItWorksTitle1")}{" "}
+            <span className="gradient-text">{t("howItWorksTitleAccent")}</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Buyurtmadan ishni topshirishgacha bir necha daqiqa
+            {t("howItWorksSubtitle")}
           </p>
         </motion.div>
 
@@ -400,6 +405,7 @@ function HowItWorksSection() {
 
 /* ─────────── CTA ─────────── */
 function CtaSection() {
+  const t = useTranslations("home");
   return (
     <section className="py-20 md:py-28 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-purple-500/10 to-pink-500/10" />
@@ -412,26 +418,27 @@ function CtaSection() {
         >
           <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 backdrop-blur px-4 py-1.5 text-sm mb-6">
             <Phone className="h-4 w-4 text-primary" />
-            Bepul va tez
+            {t("ctaBadge")}
           </div>
           <h2 className="text-4xl md:text-6xl font-bold mb-6">
-            Birinchi <span className="gradient-text">buyurtmangizni</span> bering
+            {t("ctaTitle1")}{" "}
+            <span className="gradient-text">{t("ctaTitleAccent")}</span>{" "}
+            {t("ctaTitle2")}
           </h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Hozir boshlasangiz, bir necha daqiqada eng mos ustalarni topasiz.
-            Hech qanday to&apos;lov yoki obuna kerakmas.
+            {t("ctaSubtitle")}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Button size="lg" render={<Link href="/orders/new" />}>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Boshlash
+              {t("ctaStart")}
             </Button>
             <Button
               size="lg"
               variant="outline"
               render={<Link href="/register?role=master" />}
             >
-              Usta sifatida qo&apos;shilish
+              {t("ctaJoinMaster")}
             </Button>
           </div>
         </motion.div>

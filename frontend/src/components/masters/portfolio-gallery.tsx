@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { PortfolioItem } from "@/lib/api/types";
 
 export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
+  const t = useTranslations("masters.detail");
   const [lightbox, setLightbox] = useState<{ item: PortfolioItem; index: number } | null>(
     null,
   );
@@ -15,7 +17,7 @@ export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
   if (items.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
-        Hali portfolio elementlari qo&apos;shilmagan
+        {t("portfolioEmpty")}
       </div>
     );
   }
@@ -90,6 +92,8 @@ function Lightbox({
   onIndexChange: (i: number) => void;
   onClose: () => void;
 }) {
+  const tc = useTranslations("common");
+  const tm = useTranslations("masters");
   const total = item.images.length;
   const current = item.images[index];
 
@@ -106,7 +110,7 @@ function Lightbox({
       <button
         onClick={onClose}
         className="absolute top-3 right-3 h-9 w-9 rounded-full bg-black/60 text-white inline-flex items-center justify-center hover:bg-black/80"
-        aria-label="Yopish"
+        aria-label={tc("close")}
       >
         <X className="h-5 w-5" />
       </button>
@@ -115,14 +119,14 @@ function Lightbox({
           <button
             onClick={() => onIndexChange((index - 1 + total) % total)}
             className="absolute left-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/60 text-white inline-flex items-center justify-center hover:bg-black/80"
-            aria-label="Oldingi"
+            aria-label={tm("prev")}
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={() => onIndexChange((index + 1) % total)}
             className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-black/60 text-white inline-flex items-center justify-center hover:bg-black/80"
-            aria-label="Keyingi"
+            aria-label={tm("next")}
           >
             <ChevronRight className="h-5 w-5" />
           </button>

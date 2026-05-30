@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink, Loader2, Send, X } from "lucide-react";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ interface Props {
  */
 export function TelegramLoginButton({ redirectTo = "/" }: Props) {
   const router = useRouter();
+  const t = useTranslations("auth.telegram");
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next");
   const redirectTarget = nextParam?.startsWith("/") ? nextParam : redirectTo;
@@ -55,11 +57,11 @@ export function TelegramLoginButton({ redirectTo = "/" }: Props) {
         .then((result) => {
           if (result.status === "linked" && result.user && result.tokens) {
             setSession(result.tokens, result.user);
-            toast.success(`Xush kelibsiz, ${result.user.full_name || "do'st"}!`);
+            toast.success(t("welcomeUser", { name: result.user.full_name || t("friend") }));
             router.push(redirectTarget);
             router.refresh();
           } else {
-            toast.error("Vaqt o'tdi. Qaytadan urinib ko'ring.");
+            toast.error(t("timeout"));
             setWaiting(false);
             setDeepLink(null);
           }
@@ -95,16 +97,16 @@ export function TelegramLoginButton({ redirectTo = "/" }: Props) {
             <Send className="h-5 w-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Telegram'da davom eting</p>
+            <p className="font-semibold text-sm">{t("waitingTitle")}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Botda kontaktingizni ulashing — avtomatik kirasiz
+              {t("waitingText")}
             </p>
           </div>
           <button
             type="button"
             onClick={cancel}
             className="shrink-0 text-muted-foreground hover:text-foreground"
-            aria-label="Bekor qilish"
+            aria-label={t("cancel")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -117,12 +119,12 @@ export function TelegramLoginButton({ redirectTo = "/" }: Props) {
           className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Botni qaytadan ochish
+          {t("reopenBot")}
         </a>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Kutilmoqda...
+          {t("waiting")}
         </div>
       </motion.div>
     );
@@ -142,7 +144,7 @@ export function TelegramLoginButton({ redirectTo = "/" }: Props) {
       ) : (
         <>
           <Send className="h-5 w-5" />
-          Telegram bilan davom etish
+          {t("continueWith")}
         </>
       )}
     </motion.button>

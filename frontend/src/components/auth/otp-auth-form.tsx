@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -48,6 +49,7 @@ export function OtpAuthForm({
   redirectTo = "/",
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("auth");
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next");
   const redirectTarget = nextParam && nextParam.startsWith("/") ? nextParam : redirectTo;
@@ -73,7 +75,7 @@ export function OtpAuthForm({
       if (data.auto_login && data.tokens && data.user) {
         setSession(data.tokens, data.user);
         toast.success(
-          mode === "register" ? "Xush kelibsiz!" : "Tizimga kirdingiz",
+          mode === "register" ? t("form.welcomeToast") : t("form.loggedIn"),
         );
         router.push(redirectTarget);
         router.refresh();
@@ -82,12 +84,12 @@ export function OtpAuthForm({
       // Telegram bot bilan ulanmagan — foydalanuvchini Telegram tugmasiga yo'naltirish
       if (data.needs_telegram_link) {
         setTelegramHint(data.telegram_bot_username ?? "");
-        toast.info("Avval Telegram bilan ulaning");
+        toast.info(t("telegram.connectFirst"));
         return;
       }
       setStep("code");
       setResendIn(RESEND_SECONDS);
-      toast.success("Kod telefoningizga yuborildi");
+      toast.success(t("form.codeSent"));
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
   });
@@ -96,7 +98,7 @@ export function OtpAuthForm({
     mutationFn: authApi.verifyOtp,
     onSuccess: ({ user, tokens }) => {
       setSession(tokens, user);
-      toast.success(mode === "register" ? "Xush kelibsiz!" : "Tizimga kirdingiz");
+      toast.success(mode === "register" ? t("form.welcomeToast") : t("form.loggedIn"));
       router.push(redirectTarget);
       router.refresh();
     },
@@ -106,7 +108,7 @@ export function OtpAuthForm({
   const handlePhoneSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidUzPhone(phone)) {
-      toast.error("Telefon raqamini to'liq kiriting");
+      toast.error(t("form.enterFullPhone"));
       return;
     }
     requestMutation.mutate({ phone: toE164(phone), role });
@@ -137,7 +139,7 @@ export function OtpAuthForm({
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-0.5 transition-transform" />
-            Raqamni o&apos;zgartirish
+            {t("otp.changeNumber")}
           </button>
 
           <div className="text-center space-y-3">
@@ -149,11 +151,11 @@ export function OtpAuthForm({
             >
               <Sparkles className="h-8 w-8 text-primary" />
             </motion.div>
-            <h2 className="text-2xl font-bold">Tasdiqlash kodi</h2>
+            <h2 className="text-2xl font-bold">{t("otp.title")}</h2>
             <p className="text-sm text-muted-foreground">
               <span className="font-semibold text-foreground">{phone}</span>
               <br />
-              raqamiga 6 xonali kod yubordik
+              {t("otp.sentSuffix")}
             </p>
           </div>
 
@@ -189,16 +191,16 @@ export function OtpAuthForm({
               className="flex justify-center items-center text-sm text-muted-foreground"
             >
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Tekshirilmoqda...
+              {t("otp.checking")}
             </motion.div>
           )}
 
           <div className="text-center text-sm">
             {resendIn > 0 ? (
               <span className="text-muted-foreground">
-                Qayta yuborish{" "}
+                {t("otp.resendPrefix")}{" "}
                 <span className="font-semibold text-foreground">{resendIn}</span>{" "}
-                soniyadan keyin
+                {t("otp.resendSuffix")}
               </span>
             ) : (
               <button
@@ -209,7 +211,7 @@ export function OtpAuthForm({
                 disabled={requestMutation.isPending}
                 className="text-primary hover:underline font-medium disabled:opacity-50"
               >
-                Kodni qayta yuborish
+                {t("otp.resend")}
               </button>
             )}
           </div>
@@ -225,12 +227,10 @@ export function OtpAuthForm({
         >
           <div className="space-y-2">
             <h2 className="text-2xl font-bold tracking-tight">
-              {mode === "register" ? "Ro'yxatdan o'tish" : "Xush kelibsiz!"}
+              {mode === "register" ? t("form.registerTitle") : t("form.welcome")}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {mode === "register"
-                ? "Quyidagi usullardan birini tanlang"
-                : "Quyidagi usullardan birini tanlang"}
+              {t("form.chooseMethod")}
             </p>
           </div>
 
@@ -241,20 +241,20 @@ export function OtpAuthForm({
               transition={{ delay: 0.1 }}
               className="space-y-2"
             >
-              <Label>Men kim?</Label>
+              <Label>{t("form.whoami")}</Label>
               <div className="grid grid-cols-2 gap-3">
                 <RoleOption
                   active={role === "client"}
                   onClick={() => setRole("client")}
-                  title="Mijoz"
-                  text="Xizmat qidiraman"
+                  title={t("form.clientTitle")}
+                  text={t("form.clientText")}
                   icon={<UserIcon className="h-5 w-5" />}
                 />
                 <RoleOption
                   active={role === "master"}
                   onClick={() => setRole("master")}
-                  title="Usta"
-                  text="Xizmat ko'rsataman"
+                  title={t("form.masterTitle")}
+                  text={t("form.masterText")}
                   icon={<Wrench className="h-5 w-5" />}
                 />
               </div>
@@ -277,12 +277,12 @@ export function OtpAuthForm({
               animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
             >
-              <p className="font-medium mb-0.5">Avval Telegram'ga ulanish kerak</p>
+              <p className="font-medium mb-0.5">{t("telegram.linkFirstTitle")}</p>
               <p className="text-amber-800 text-xs">
-                Yuqoridagi <span className="font-semibold">&quot;Telegram bilan davom etish&quot;</span> tugmasini bosing.
+                {t("telegram.linkFirstText")}
                 {telegramHint && (
                   <>
-                    {" "}Yoki to&apos;g&apos;ridan-to&apos;g&apos;ri{" "}
+                    {" "}{t("telegram.linkFirstOr")}{" "}
                     <a
                       href={`https://t.me/${telegramHint.replace(/^@/, "")}`}
                       target="_blank"
@@ -291,7 +291,7 @@ export function OtpAuthForm({
                     >
                       @{telegramHint.replace(/^@/, "")}
                     </a>{" "}
-                    ga o&apos;ting.
+                    {t("telegram.linkFirstGoto")}
                   </>
                 )}
               </p>
@@ -304,14 +304,14 @@ export function OtpAuthForm({
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="bg-card px-3 text-muted-foreground uppercase tracking-wider">
-                yoki telefon orqali
+                {t("form.orPhone")}
               </span>
             </div>
           </div>
 
           <form onSubmit={handlePhoneSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefon raqami</Label>
+              <Label htmlFor="phone">{t("form.phoneLabel")}</Label>
             <Input
               id="phone"
               type="tel"
@@ -325,7 +325,7 @@ export function OtpAuthForm({
             />
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-              SMS orqali tasdiqlash kodi yuboriladi
+              {t("form.smsHint")}
             </p>
           </div>
 
@@ -339,22 +339,22 @@ export function OtpAuthForm({
               {requestMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Yuborilmoqda...
+                  {t("form.sending")}
                 </>
               ) : mode === "register" ? (
-                "Ro'yxatdan o'tish"
+                t("form.registerTitle")
               ) : (
-                "Davom etish"
+                t("form.continue")
               )}
             </span>
           </Button>
 
             <div className="text-center text-xs text-muted-foreground">
-              Davom etish orqali siz{" "}
+              {t("form.termsPrefix")}{" "}
               <a href="#" className="text-foreground underline underline-offset-2">
-                foydalanish shartlari
+                {t("form.termsLink")}
               </a>{" "}
-              bilan rozisiz
+              {t("form.termsSuffix")}
             </div>
           </form>
 

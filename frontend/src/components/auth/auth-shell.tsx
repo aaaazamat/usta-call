@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "motion/react";
+import { useTranslations } from "next-intl";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -12,30 +12,35 @@ import {
   Wrench,
 } from "lucide-react";
 
-const features = [
-  {
-    icon: Sparkles,
-    title: "AI yordamida tezkor moslashtirish",
-    text: "Buyurtmangizni AI tahlil qiladi va eng mos ustani topadi",
-  },
-  {
-    icon: Users,
-    title: "30+ tasdiqlangan ustalar",
-    text: "Santexnik, elektrik, quruvchi va boshqa mutaxassislar",
-  },
-  {
-    icon: Phone,
-    title: "Tezkor bog'lanish",
-    text: "Band qiling va telefon orqali bevosita gaplashing",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Bepul va xavfsiz",
-    text: "Hech qanday obuna yoki to'lov yo'q",
-  },
-];
+import { Link } from "@/i18n/navigation";
 
 export function AuthShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("auth.shell");
+  const year = new Date().getFullYear();
+
+  const features = [
+    {
+      icon: Sparkles,
+      title: t("feature1Title"),
+      text: t("feature1Text"),
+    },
+    {
+      icon: Users,
+      title: t("feature2Title"),
+      text: t("feature2Text"),
+    },
+    {
+      icon: Phone,
+      title: t("feature3Title"),
+      text: t("feature3Text"),
+    },
+    {
+      icon: CheckCircle2,
+      title: t("feature4Title"),
+      text: t("feature4Text"),
+    },
+  ];
+
   return (
     <div className="relative min-h-[calc(100vh-5rem)] overflow-hidden">
       {/* Background dekoratsiya */}
@@ -57,7 +62,7 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm transition-colors w-fit"
           >
             <ArrowLeft className="h-4 w-4" />
-            Bosh sahifaga qaytish
+            {t("backHome")}
           </Link>
 
           <div className="space-y-8 max-w-md">
@@ -75,12 +80,11 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
 
             <div className="space-y-2">
               <h2 className="text-3xl xl:text-4xl font-bold leading-tight">
-                Kerakli ustani <br />
-                <span className="gradient-text">bir daqiqada</span> toping
+                {t("title1")} <br />
+                <span className="gradient-text">{t("titleAccent")}</span> {t("title2")}
               </h2>
               <p className="text-muted-foreground">
-                Eng yaxshi ustalar bilan ishlamoqchimisiz? Yoki ish topmoqchimisiz?
-                Ro&apos;yxatdan o&apos;ting va boshlang.
+                {t("subtitle")}
               </p>
             </div>
 
@@ -118,14 +122,14 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
                 ))}
               </div>
               <div className="text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">500+</span> mamnun
-                mijozlar
+                <span className="font-semibold text-foreground">500+</span>{" "}
+                {t("trustBadge")}
               </div>
             </motion.div>
           </div>
 
           <div className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} usta-call. Barcha huquqlar himoyalangan.
+            {t("copyright", { year })}
           </div>
         </motion.div>
 

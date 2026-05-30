@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
   Briefcase,
@@ -19,32 +19,35 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookMasterDialog } from "@/components/bookings/book-master-dialog";
+import { useRouter } from "@/i18n/navigation";
 import { useMasterDetail } from "@/lib/api/masters-hooks";
 import { useAuthStore } from "@/lib/auth/store";
 
 import { PortfolioGallery } from "./portfolio-gallery";
 import { ReviewsList } from "./reviews-list";
 
-function formatRate(from: string | null, to: string | null): string | null {
-  if (!from && !to) return null;
-  const fmt = (v: string) => Number(v).toLocaleString("uz-UZ");
-  if (from && to) return `${fmt(from)} – ${fmt(to)} so'm/soat`;
-  if (from) return `${fmt(from)} so'm/soat dan`;
-  return `${fmt(to!)} so'm/soat gacha`;
-}
-
 export function MasterDetailView({ masterId }: { masterId: number }) {
   const router = useRouter();
+  const t = useTranslations("masters");
+  const td = useTranslations("masters.detail");
   const currentUser = useAuthStore((s) => s.user);
   const { data: master, isLoading, isError } = useMasterDetail(masterId);
   const [bookOpen, setBookOpen] = useState(false);
 
+  const formatRate = (from: string | null, to: string | null): string | null => {
+    if (!from && !to) return null;
+    const fmt = (v: string) => Number(v).toLocaleString("uz-UZ");
+    if (from && to) return t("ratePerHour", { amount: `${fmt(from)} – ${fmt(to)}` });
+    if (from) return t("ratePerHour", { amount: fmt(from) });
+    return t("ratePerHour", { amount: fmt(to!) });
+  };
+
   if (isError) {
     return (
       <div className="rounded-lg border bg-destructive/5 p-8 text-center">
-        <p className="text-destructive font-medium">Usta topilmadi</p>
+        <p className="text-destructive font-medium">{td("notFound")}</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push("/masters")}>
-          Ustalar ro&apos;yxatiga qaytish
+          {td("backToList")}
         </Button>
       </div>
     );
@@ -89,11 +92,11 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
           <div className="flex-1 min-w-0 space-y-3">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="text-2xl md:text-3xl font-bold">
-                {master.user.full_name || "Usta"}
+                {master.user.full_name || t("master")}
               </h1>
               {master.is_available && (
                 <Badge className="bg-green-100 text-green-800 border-green-200 hover:bg-green-100">
-                  Ish qabul qiladi
+                  {td("available")}
                 </Badge>
               )}
             </div>
@@ -105,19 +108,19 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
                   <span className="text-foreground font-semibold">
                     {rating.toFixed(1)}
                   </span>
-                  <span>({master.reviews_count_cache} sharh)</span>
+                  <span>({td("reviewsCount", { count: master.reviews_count_cache })})</span>
                 </span>
               ) : (
-                <span>Sharhlar hali yo&apos;q</span>
+                <span>{td("reviewsNotYet")}</span>
               )}
               <span className="inline-flex items-center gap-1.5">
                 <Briefcase className="h-4 w-4" />
-                {master.completed_orders_cache} ish bajargan
+                {td("completedWork", { count: master.completed_orders_cache })}
               </span>
               {master.experience_years > 0 && (
                 <span className="inline-flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />
-                  {master.experience_years} yil tajriba
+                  {td("experienceYearsFull", { years: master.experience_years })}
                 </span>
               )}
             </div>
@@ -135,7 +138,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
             {rate && (
               <div className="text-base font-semibold pt-1">
                 <span className="text-muted-foreground text-sm font-normal mr-2">
-                  Narx:
+                  {td("price")}
                 </span>
                 {rate}
               </div>
@@ -150,7 +153,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
                   className="w-full sm:w-auto"
                 >
                   <CheckCircle2 className="h-4 w-4 mr-2" />
-                  {master.is_available ? "Band qilish" : "Hozir band"}
+                  {master.is_available ? td("book") : td("notAvailable")}
                 </Button>
                 <Button
                   size="lg"
@@ -158,7 +161,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
                   onClick={handleCall}
                   className="w-full sm:w-auto"
                 >
-                  <Phone className="h-4 w-4 mr-2" /> Qo&apos;ng&apos;iroq qilish
+                  <Phone className="h-4 w-4 mr-2" /> {td("call")}
                 </Button>
               </div>
             )}
@@ -166,7 +169,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
             {!master.is_available && !isMasterRole && (
               <div className="inline-flex items-center gap-1.5 text-sm text-muted-foreground pt-1">
                 <XCircle className="h-4 w-4" />
-                Usta hozir boshqa ish bilan band. Yangi so&apos;rovlarni qabul qilmaydi.
+                {td("notAcceptingNote")}
               </div>
             )}
           </div>
@@ -176,29 +179,29 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
       <Tabs defaultValue="about" className="space-y-6">
         <TabsList className="w-full sm:w-auto overflow-x-auto">
           <TabsTrigger value="about" className="flex-1 sm:flex-initial">
-            Haqida
+            {td("aboutTab")}
           </TabsTrigger>
           <TabsTrigger value="portfolio" className="flex-1 sm:flex-initial">
-            Portfolio ({master.portfolio.length})
+            {td("portfolioTitle")} ({master.portfolio.length})
           </TabsTrigger>
           <TabsTrigger value="reviews" className="flex-1 sm:flex-initial">
-            Sharhlar ({master.reviews_count_cache})
+            {td("reviewsTitle")} ({master.reviews_count_cache})
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="about" className="space-y-6">
           {master.bio ? (
-            <Section title="Bio">
+            <Section title={td("bioTitle")}>
               <p className="text-sm leading-relaxed whitespace-pre-wrap">{master.bio}</p>
             </Section>
           ) : (
             <div className="rounded-lg border bg-muted/30 p-6 text-sm text-muted-foreground text-center">
-              Usta haqida ma&apos;lumot kiritilmagan
+              {td("noBio")}
             </div>
           )}
 
           {master.skills.length > 0 && (
-            <Section title="Ko'nikmalar" icon={<Wrench className="h-4 w-4" />}>
+            <Section title={td("skillsTitle")} icon={<Wrench className="h-4 w-4" />}>
               <div className="flex flex-wrap gap-1.5">
                 {master.skills.map((s) => (
                   <Badge key={s.id} variant="outline">
@@ -210,7 +213,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
           )}
 
           {master.regions.length > 0 && (
-            <Section title="Xizmat ko'rsatadigan hududlar" icon={<MapPin className="h-4 w-4" />}>
+            <Section title={td("regionsTitle")} icon={<MapPin className="h-4 w-4" />}>
               <div className="flex flex-wrap gap-1.5">
                 {master.regions.map((r) => (
                   <Badge key={r.id} variant="outline">
@@ -233,7 +236,7 @@ export function MasterDetailView({ masterId }: { masterId: number }) {
 
       <BookMasterDialog
         masterId={master.id}
-        masterName={master.user.full_name || "Usta"}
+        masterName={master.user.full_name || t("master")}
         open={bookOpen}
         onOpenChange={setBookOpen}
       />

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Star } from "lucide-react";
 
@@ -9,13 +10,16 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useReviews } from "@/lib/api/reviews-hooks";
 
-const DATE_FMT = new Intl.DateTimeFormat("uz-UZ", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const LOCALE_MAP: Record<string, string> = { uz: "uz-UZ", kk: "uz-UZ", ru: "ru-RU" };
 
 export function ReviewsList({ masterId }: { masterId: number }) {
+  const t = useTranslations("masters.detail");
+  const locale = useLocale();
+  const dateFmt = new Intl.DateTimeFormat(LOCALE_MAP[locale] ?? "uz-UZ", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   const { data, isLoading } = useReviews({ master: masterId });
   const [lightbox, setLightbox] = useState<string | null>(null);
 
@@ -32,7 +36,7 @@ export function ReviewsList({ masterId }: { masterId: number }) {
   if (!data || data.results.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
-        Hali sharhlar yo&apos;q
+        {t("noReviews")}
       </div>
     );
   }
@@ -52,7 +56,7 @@ export function ReviewsList({ masterId }: { masterId: number }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <div className="font-medium truncate">
-                    {review.client.full_name || "Mijoz"}
+                    {review.client.full_name || t("client")}
                   </div>
                   <div className="flex items-center gap-0.5">
                     {Array.from({ length: 5 }).map((_, i) => (
@@ -69,7 +73,7 @@ export function ReviewsList({ masterId }: { masterId: number }) {
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {DATE_FMT.format(new Date(review.created_at))}
+                  {dateFmt.format(new Date(review.created_at))}
                 </div>
               </div>
             </div>
@@ -87,7 +91,7 @@ export function ReviewsList({ masterId }: { masterId: number }) {
                   >
                     <Image
                       src={img.image}
-                      alt="Sharh rasmi"
+                      alt={t("reviewImage")}
                       fill
                       className="object-cover"
                       sizes="64px"
@@ -101,7 +105,7 @@ export function ReviewsList({ masterId }: { masterId: number }) {
             {review.master_reply && (
               <div className="mt-4 pl-4 border-l-2 border-primary/40 bg-primary/5 rounded-r-md p-3">
                 <div className="text-xs font-medium text-primary mb-1">
-                  Usta javobi
+                  {t("masterReply")}
                 </div>
                 <p className="text-sm leading-relaxed">{review.master_reply}</p>
               </div>

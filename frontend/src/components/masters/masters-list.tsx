@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 
@@ -14,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "@/i18n/navigation";
 import {
   useCategories,
   useMasters,
@@ -24,18 +26,19 @@ import { useDebounce } from "@/lib/use-debounce";
 
 import { MasterCard, MasterCardSkeleton } from "./master-card";
 
-const ORDERING_OPTIONS = [
-  { value: "-rating_cache", label: "Reyting bo'yicha" },
-  { value: "-reviews_count_cache", label: "Ko'p sharhli" },
-  { value: "-completed_orders_cache", label: "Ko'p ish bajargan" },
-  { value: "-created_at", label: "Yangi qo'shilgan" },
-];
-
 const NONE = "all";
 
 export function MastersList() {
   const router = useRouter();
+  const t = useTranslations("masters");
   const searchParams = useSearchParams();
+
+  const ORDERING_OPTIONS = [
+    { value: "-rating_cache", label: t("sortRating") },
+    { value: "-reviews_count_cache", label: t("sortMostReviews") },
+    { value: "-completed_orders_cache", label: t("sortMostOrders") },
+    { value: "-created_at", label: t("sortNewest") },
+  ];
 
   const initial = useMemo(() => parseParams(searchParams), [searchParams]);
 
@@ -86,9 +89,9 @@ export function MastersList() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold">Ustalar</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">{t("title")}</h1>
         <p className="text-sm md:text-base text-muted-foreground mt-1">
-          {data ? `${data.count} ta usta topildi` : "Ustalar ro'yxati"}
+          {data ? t("found", { count: data.count }) : t("listSubtitle")}
         </p>
       </div>
 
@@ -99,7 +102,7 @@ export function MastersList() {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Qidirish..."
+              placeholder={t("searchPlaceholder")}
               className="h-11 pl-9 text-base"
             />
           </div>
@@ -112,16 +115,16 @@ export function MastersList() {
               }
             >
               <SelectTrigger className="h-11 flex-1 sm:flex-initial sm:w-[180px]">
-                <SelectValue placeholder="Hudud">
+                <SelectValue placeholder={t("region")}>
                   {(value) =>
                     !value || value === NONE
-                      ? "Barcha hududlar"
-                      : viloyatlar.find((r) => String(r.id) === value)?.name ?? "Hudud"
+                      ? t("allRegions")
+                      : viloyatlar.find((r) => String(r.id) === value)?.name ?? t("region")
                   }
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NONE}>Barcha hududlar</SelectItem>
+                <SelectItem value={NONE}>{t("allRegions")}</SelectItem>
                 {viloyatlar.map((r) => (
                   <SelectItem key={r.id} value={String(r.id)}>
                     {r.name}
@@ -139,7 +142,7 @@ export function MastersList() {
                 <SelectValue>
                   {(value) =>
                     ORDERING_OPTIONS.find((o) => o.value === value)?.label ??
-                    "Saralash"
+                    t("sort")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -160,7 +163,7 @@ export function MastersList() {
               active={initial.category === undefined}
               onClick={() => updateParam({ category: undefined })}
             >
-              Barchasi
+              {t("all")}
             </CategoryChip>
             {categories
               .filter((c) => !c.parent)
@@ -186,7 +189,7 @@ export function MastersList() {
                 router.replace("/masters", { scroll: false });
               }}
             >
-              <X className="h-3.5 w-3.5 mr-1" /> Filterlarni tozalash
+              <X className="h-3.5 w-3.5 mr-1" /> {t("clearFilters")}
             </Button>
           </div>
         )}
@@ -194,7 +197,7 @@ export function MastersList() {
 
       {isError ? (
         <div className="rounded-lg border bg-destructive/5 p-8 text-center">
-          <p className="text-destructive">Ustalarni yuklashda xatolik yuz berdi</p>
+          <p className="text-destructive">{t("loadError")}</p>
         </div>
       ) : isLoading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -204,9 +207,9 @@ export function MastersList() {
         </div>
       ) : data && data.results.length === 0 ? (
         <div className="rounded-lg border bg-muted/30 p-12 text-center">
-          <p className="text-lg font-medium">Ustalar topilmadi</p>
+          <p className="text-lg font-medium">{t("notFound")}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            Boshqa filterlarni sinab ko&apos;ring
+            {t("tryOtherFilters")}
           </p>
         </div>
       ) : (
@@ -269,6 +272,7 @@ function Pagination({
   page: number;
   onChange: (page: number | undefined) => void;
 }) {
+  const t = useTranslations("masters");
   return (
     <div className="flex items-center justify-center gap-2 pt-4">
       <Button
@@ -277,10 +281,10 @@ function Pagination({
         disabled={!hasPrev}
         onClick={() => onChange(page <= 2 ? undefined : page - 1)}
       >
-        <ChevronLeft className="h-4 w-4" /> Oldingi
+        <ChevronLeft className="h-4 w-4" /> {t("prev")}
       </Button>
       <Badge variant="secondary" className="px-3 py-1">
-        {page}-sahifa
+        {t("pageLabel", { page })}
       </Badge>
       <Button
         variant="outline"
@@ -288,7 +292,7 @@ function Pagination({
         disabled={!hasNext}
         onClick={() => onChange(page + 1)}
       >
-        Keyingi <ChevronRight className="h-4 w-4" />
+        {t("next")} <ChevronRight className="h-4 w-4" />
       </Button>
     </div>
   );

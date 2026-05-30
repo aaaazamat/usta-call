@@ -1,23 +1,33 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
 import { Briefcase, MapPin, Star } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/i18n/navigation";
 import { getCategoryIcon } from "@/lib/category-icons";
 import type { MasterListItem } from "@/lib/api/types";
 
-function formatRate(from: string | null, to: string | null): string | null {
+function formatRate(
+  from: string | null,
+  to: string | null,
+  perHour: (amount: string) => string,
+): string | null {
   if (!from && !to) return null;
   const fmt = (v: string) => Number(v).toLocaleString("uz-UZ");
-  if (from && to) return `${fmt(from)} – ${fmt(to)} so'm/soat`;
-  if (from) return `${fmt(from)} so'm/soat`;
-  return `${fmt(to!)} so'm/soat`;
+  if (from && to) return perHour(`${fmt(from)} – ${fmt(to)}`);
+  if (from) return perHour(fmt(from));
+  return perHour(fmt(to!));
 }
 
 export function MasterCard({ master }: { master: MasterListItem }) {
+  const t = useTranslations("masters");
   const rating = Number(master.rating_cache);
   const hasRating = master.reviews_count_cache > 0;
-  const rate = formatRate(master.hourly_rate_from, master.hourly_rate_to);
+  const rate = formatRate(master.hourly_rate_from, master.hourly_rate_to, (amount) =>
+    t("ratePerHour", { amount }),
+  );
 
   return (
     <Link
@@ -41,7 +51,7 @@ export function MasterCard({ master }: { master: MasterListItem }) {
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
-            {master.user.full_name || "Usta"}
+            {master.user.full_name || t("master")}
           </h3>
           <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
             {hasRating ? (
@@ -53,11 +63,11 @@ export function MasterCard({ master }: { master: MasterListItem }) {
                 <span>({master.reviews_count_cache})</span>
               </span>
             ) : (
-              <span>Sharhlar yo&apos;q</span>
+              <span>{t("noReviews")}</span>
             )}
             <span className="inline-flex items-center gap-1">
               <Briefcase className="h-3.5 w-3.5" />
-              {master.completed_orders_cache} ish
+              {t("workCount", { count: master.completed_orders_cache })}
             </span>
           </div>
         </div>
@@ -66,7 +76,7 @@ export function MasterCard({ master }: { master: MasterListItem }) {
             variant="secondary"
             className="bg-green-50 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300 shrink-0"
           >
-            Ochiq
+            {t("open")}
           </Badge>
         )}
       </div>
@@ -104,8 +114,8 @@ export function MasterCard({ master }: { master: MasterListItem }) {
         <div className="flex items-center gap-1 text-muted-foreground text-xs">
           <MapPin className="h-3.5 w-3.5" />
           {master.experience_years > 0
-            ? `${master.experience_years}+ yil tajriba`
-            : "Yangi usta"}
+            ? t("experienceYears", { years: master.experience_years })
+            : t("newMaster")}
         </div>
         {rate && <div className="font-semibold text-sm">{rate}</div>}
       </div>

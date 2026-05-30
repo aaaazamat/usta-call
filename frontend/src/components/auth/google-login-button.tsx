@@ -2,6 +2,7 @@
 
 import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
 import { authApi } from "@/lib/api/auth";
@@ -25,6 +26,8 @@ export function GoogleLoginButton({
   onNeedsPhone,
 }: Props) {
   const router = useRouter();
+  const t = useTranslations("auth.google");
+  const tForm = useTranslations("auth.form");
   const searchParams = useSearchParams();
   const nextParam = searchParams.get("next");
   const redirectTarget = nextParam?.startsWith("/") ? nextParam : redirectTo;
@@ -45,7 +48,7 @@ export function GoogleLoginButton({
           text="continue_with"
           onSuccess={async (credential) => {
             if (!credential.credential) {
-              toast.error("Google'dan ma'lumot olinmadi");
+              toast.error(t("noData"));
               return;
             }
             try {
@@ -55,13 +58,13 @@ export function GoogleLoginButton({
               );
               setSession(result.tokens, result.user);
               if (result.needs_phone) {
-                toast.info("Telefon raqamingizni qo'shing");
+                toast.info(t("addPhone"));
                 onNeedsPhone?.();
               } else {
                 toast.success(
                   result.is_new_user
-                    ? "Xush kelibsiz!"
-                    : "Tizimga kirdingiz",
+                    ? tForm("welcomeToast")
+                    : tForm("loggedIn"),
                 );
                 router.push(redirectTarget);
                 router.refresh();
@@ -71,7 +74,7 @@ export function GoogleLoginButton({
             }
           }}
           onError={() => {
-            toast.error("Google bilan kirish bekor qilindi");
+            toast.error(t("cancelled"));
           }}
         />
       </div>

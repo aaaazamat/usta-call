@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CheckCircle2, Loader2, Phone } from "lucide-react";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ interface Props {
  */
 export function AddPhoneDialog({ open, onOpenChange, redirectTo = "/" }: Props) {
   const router = useRouter();
+  const t = useTranslations("auth.addPhone");
   const setUser = useAuthStore((s) => s.setUser);
   const [phone, setPhone] = useState("+998 ");
   const [submitting, setSubmitting] = useState(false);
@@ -41,14 +43,14 @@ export function AddPhoneDialog({ open, onOpenChange, redirectTo = "/" }: Props) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidUzPhone(phone)) {
-      toast.error("Telefon raqamini to'liq kiriting");
+      toast.error(t("enterFullPhone"));
       return;
     }
     setSubmitting(true);
     try {
       const updated = await authApi.addPhone(toE164(phone));
       setUser(updated);
-      toast.success("Telefon saqlandi");
+      toast.success(t("saved"));
       onOpenChange(false);
       router.push(redirectTo);
       router.refresh();
@@ -67,18 +69,18 @@ export function AddPhoneDialog({ open, onOpenChange, redirectTo = "/" }: Props) 
             <Phone className="h-7 w-7 text-primary" />
           </div>
           <DialogTitle className="text-center">
-            Telefon raqamingizni qo&apos;shing
+            {t("title")}
           </DialogTitle>
           <DialogDescription className="text-center">
-            Ustalar siz bilan bog&apos;lanishi uchun telefon raqami majburiy.
+            {t("desc1")}
             <br />
-            Faqat bir marta kiritasiz.
+            {t("desc2")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="add_phone">Telefon raqami</Label>
+            <Label htmlFor="add_phone">{t("label")}</Label>
             <Input
               id="add_phone"
               type="tel"
@@ -92,7 +94,7 @@ export function AddPhoneDialog({ open, onOpenChange, redirectTo = "/" }: Props) 
             />
             <p className="text-xs text-muted-foreground flex items-center gap-1.5">
               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-              Faqat siz va kelishilgan ustalar ko&apos;radi
+              {t("privacyHint")}
             </p>
           </div>
 
@@ -104,10 +106,10 @@ export function AddPhoneDialog({ open, onOpenChange, redirectTo = "/" }: Props) 
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Saqlanmoqda...
+                {t("saving")}
               </>
             ) : (
-              "Saqlash va davom etish"
+              t("saveBtn")
             )}
           </Button>
         </form>

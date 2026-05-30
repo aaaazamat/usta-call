@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { Camera, CheckCircle2, Loader2, LogOut } from "lucide-react";
 import { toast } from "sonner";
@@ -12,19 +12,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "@/i18n/navigation";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import type { Role, User } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
 import { useMe, useSwitchRole, useUpdateMe } from "@/lib/auth/hooks";
 
-const ROLE_LABEL: Record<Role, string> = {
-  client: "Mijoz",
-  master: "Usta",
-  admin: "Admin",
-};
+function useRoleLabel() {
+  const t = useTranslations("profile");
+  return (role: Role): string =>
+    role === "client" ? t("roleClient") : role === "master" ? t("roleMaster") : t("roleAdmin");
+}
 
 export function ProfileView() {
   const router = useRouter();
+  const t = useTranslations("profile");
   const logout = useAuthStore((s) => s.logout);
   const { data: user } = useMe();
 
@@ -33,18 +35,18 @@ export function ProfileView() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Profil</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => {
             logout();
-            toast.success("Tizimdan chiqdingiz");
+            toast.success(t("loggedOut"));
             router.push("/");
           }}
           className="text-destructive"
         >
-          <LogOut className="mr-2 h-4 w-4" /> Chiqish
+          <LogOut className="mr-2 h-4 w-4" /> {t("logout")}
         </Button>
       </div>
 
@@ -55,6 +57,7 @@ export function ProfileView() {
 }
 
 function ProfileCard({ user }: { user: User }) {
+  const t = useTranslations("profile");
   const [fullName, setFullName] = useState(user.full_name);
   const fileRef = useRef<HTMLInputElement>(null);
   const updateMe = useUpdateMe();
@@ -63,17 +66,17 @@ function ProfileCard({ user }: { user: User }) {
 
   const handleAvatarPick = (file: File) => {
     if (!file.type.startsWith("image/")) {
-      toast.error("Faqat rasm fayllar qabul qilinadi");
+      toast.error(t("onlyImages"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Rasm hajmi 5MB dan oshmasligi kerak");
+      toast.error(t("maxAvatarSize"));
       return;
     }
     updateMe.mutate(
       { avatar: file },
       {
-        onSuccess: () => toast.success("Avatar yangilandi"),
+        onSuccess: () => toast.success(t("avatarUpdated")),
         onError: (err) => toast.error(getApiErrorMessage(err)),
       },
     );
@@ -83,7 +86,7 @@ function ProfileCard({ user }: { user: User }) {
     updateMe.mutate(
       { full_name: fullName.trim() },
       {
-        onSuccess: () => toast.success("Ism saqlandi"),
+        onSuccess: () => toast.success(t("nameSaved")),
         onError: (err) => toast.error(getApiErrorMessage(err)),
       },
     );
@@ -92,7 +95,7 @@ function ProfileCard({ user }: { user: User }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Shaxsiy ma&apos;lumotlar</CardTitle>
+        <CardTitle>{t("personalInfo")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center gap-4">
@@ -109,7 +112,7 @@ function ProfileCard({ user }: { user: User }) {
               onClick={() => fileRef.current?.click()}
               disabled={updateMe.isPending}
               className="absolute -bottom-1 -right-1 inline-flex h-7 w-7 items-center justify-center rounded-full border bg-background shadow-sm hover:bg-muted disabled:opacity-50"
-              aria-label="Avatarni o'zgartirish"
+              aria-label={t("changeAvatar")}
             >
               {updateMe.isPending ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -130,15 +133,15 @@ function ProfileCard({ user }: { user: User }) {
             />
           </div>
           <div className="text-sm text-muted-foreground">
-            <p>Rasmni o&apos;zgartirish uchun kamera belgisini bosing</p>
-            <p className="text-xs mt-1">JPG, PNG. Maks 5MB</p>
+            <p>{t("avatarHint")}</p>
+            <p className="text-xs mt-1">{t("avatarFormats")}</p>
           </div>
         </div>
 
         <Separator />
 
         <div className="space-y-2">
-          <Label htmlFor="phone">Telefon raqami</Label>
+          <Label htmlFor="phone">{t("phone")}</Label>
           <div className="flex items-center gap-2">
             <Input
               id="phone"
@@ -148,27 +151,27 @@ function ProfileCard({ user }: { user: User }) {
             />
             {user.is_verified && (
               <Badge variant="secondary" className="gap-1">
-                <CheckCircle2 className="h-3 w-3 text-green-600" /> Tasdiqlangan
+                <CheckCircle2 className="h-3 w-3 text-green-600" /> {t("verified")}
               </Badge>
             )}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="full_name">F.I.Sh.</Label>
+          <Label htmlFor="full_name">{t("fullName")}</Label>
           <div className="flex gap-2">
             <Input
               id="full_name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               maxLength={120}
-              placeholder="Masalan: Aliyev Aziz"
+              placeholder={t("namePlaceholder")}
             />
             <Button
               onClick={handleNameSave}
               disabled={!nameChanged || updateMe.isPending}
             >
-              {updateMe.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Saqlash"}
+              {updateMe.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : t("save")}
             </Button>
           </div>
         </div>
@@ -178,6 +181,8 @@ function ProfileCard({ user }: { user: User }) {
 }
 
 function RoleCard({ user }: { user: User }) {
+  const t = useTranslations("profile");
+  const roleLabel = useRoleLabel();
   const switchRole = useSwitchRole();
 
   if (user.role === "admin") return null;
@@ -187,14 +192,12 @@ function RoleCard({ user }: { user: User }) {
   const handleSwitch = () => {
     if (
       !confirm(
-        user.role === "client"
-          ? "Usta sifatida ro'yxatdan o'tmoqchimisiz? Profilingizni to'ldirish kerak bo'ladi."
-          : "Mijoz rejimiga o'tmoqchimisiz?",
+        user.role === "client" ? t("confirmToMaster") : t("confirmToClient"),
       )
     )
       return;
     switchRole.mutate(otherRole, {
-      onSuccess: () => toast.success(`Endi siz ${ROLE_LABEL[otherRole]} rejimida`),
+      onSuccess: () => toast.success(t("nowInRole", { role: roleLabel(otherRole) })),
       onError: (err) => toast.error(getApiErrorMessage(err)),
     });
   };
@@ -202,25 +205,23 @@ function RoleCard({ user }: { user: User }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Rol</CardTitle>
+        <CardTitle>{t("roleTitle")}</CardTitle>
       </CardHeader>
       <CardContent className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-sm">Hozirgi rol:</span>
-            <Badge variant="default">{ROLE_LABEL[user.role]}</Badge>
+            <span className="text-sm">{t("currentRole")}</span>
+            <Badge variant="default">{roleLabel(user.role)}</Badge>
           </div>
           <p className="text-xs text-muted-foreground mt-1.5">
-            {user.role === "client"
-              ? "Sayt orqali xizmatlar buyurtma qila olasiz"
-              : "Mijozlar sizning xizmatlaringizni topadi"}
+            {user.role === "client" ? t("clientDesc") : t("masterDesc")}
           </p>
         </div>
         <Button variant="outline" onClick={handleSwitch} disabled={switchRole.isPending}>
           {switchRole.isPending ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            `${ROLE_LABEL[otherRole]}ga o'tish`
+            t("switchTo", { role: roleLabel(otherRole) })
           )}
         </Button>
       </CardContent>

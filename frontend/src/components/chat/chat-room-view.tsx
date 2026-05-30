@@ -1,13 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Loader2, Send, Wifi, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Link, useRouter } from "@/i18n/navigation";
 import { chatApi } from "@/lib/api/chat";
 import {
   chatKeys,
@@ -21,15 +21,7 @@ import { useAuthStore } from "@/lib/auth/store";
 import type { ChatMessage, User } from "@/lib/api/types";
 import { useQueryClient } from "@tanstack/react-query";
 
-const TIME_FMT = new Intl.DateTimeFormat("uz-UZ", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-const DATE_FMT = new Intl.DateTimeFormat("uz-UZ", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
+const LOCALE_MAP: Record<string, string> = { uz: "uz-UZ", kk: "uz-UZ", ru: "ru-RU" };
 
 function isSameDay(a: Date, b: Date) {
   return (
@@ -41,6 +33,14 @@ function isSameDay(a: Date, b: Date) {
 
 export function ChatRoomView({ roomId }: { roomId: number }) {
   const router = useRouter();
+  const t = useTranslations("chat");
+  const locale = useLocale();
+  const intlLocale = LOCALE_MAP[locale] ?? "uz-UZ";
+  const dateFmt = new Intl.DateTimeFormat(intlLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
 
@@ -105,9 +105,9 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
   if (roomError || !room || !currentUser) {
     return (
       <div className="rounded-lg border bg-destructive/5 p-8 text-center">
-        <p className="text-destructive font-medium">Chat xonasi topilmadi</p>
+        <p className="text-destructive font-medium">{t("notFound")}</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push("/chat")}>
-          Chat ro&apos;yxatiga qaytish
+          {t("backToList")}
         </Button>
       </div>
     );
@@ -146,7 +146,7 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
           variant="ghost"
           size="icon-sm"
           render={<Link href="/chat" />}
-          aria-label="Orqaga"
+          aria-label={t("back")}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
@@ -160,17 +160,17 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
             {status === "open" ? (
               <>
                 <Wifi className="h-3 w-3 text-green-600" />
-                <span>Onlayn</span>
+                <span>{t("online")}</span>
               </>
             ) : status === "connecting" ? (
               <>
                 <Loader2 className="h-3 w-3 animate-spin" />
-                <span>Ulanmoqda...</span>
+                <span>{t("connecting")}</span>
               </>
             ) : (
               <>
                 <WifiOff className="h-3 w-3 text-muted-foreground" />
-                <span>WebSocket uzilgan</span>
+                <span>{t("disconnected")}</span>
               </>
             )}
           </div>
@@ -179,7 +179,7 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
           href={`/orders/${room.order}`}
           className="text-xs text-primary hover:underline"
         >
-          Buyurtma #{room.order}
+          {t("orderLabel", { id: room.order })}
         </Link>
       </header>
 
@@ -187,7 +187,7 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
         {messages.length === 0 ? (
           <div className="h-full flex items-center justify-center text-center">
             <p className="text-sm text-muted-foreground">
-              Hali xabarlar yo&apos;q. Birinchi xabarni yozing!
+              {t("noMessages")}
             </p>
           </div>
         ) : (
@@ -200,7 +200,7 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
                 {showDate && (
                   <div className="flex justify-center my-3">
                     <span className="text-xs bg-background border rounded-full px-3 py-1 text-muted-foreground">
-                      {DATE_FMT.format(msgDate)}
+                      {dateFmt.format(msgDate)}
                     </span>
                   </div>
                 )}
@@ -225,7 +225,7 @@ export function ChatRoomView({ roomId }: { roomId: number }) {
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Xabar yozing..."
+          placeholder={t("typeMessage")}
           className="flex-1 h-10 px-3 rounded-lg border bg-background focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring outline-none text-sm"
           autoFocus
         />
@@ -248,6 +248,12 @@ function MessageBubble({
   message: ChatMessage;
   isMine: boolean;
 }) {
+  const t = useTranslations("chat");
+  const locale = useLocale();
+  const timeFmt = new Intl.DateTimeFormat(LOCALE_MAP[locale] ?? "uz-UZ", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
   return (
     <div className={"flex " + (isMine ? "justify-end" : "justify-start")}>
       <div
@@ -268,7 +274,7 @@ function MessageBubble({
             rel="noopener noreferrer"
             className="text-xs underline mt-1 inline-block opacity-90"
           >
-            📎 Fayl
+            {t("file")}
           </a>
         )}
         <div
@@ -277,7 +283,7 @@ function MessageBubble({
             (isMine ? "text-primary-foreground/70 text-right" : "text-muted-foreground")
           }
         >
-          {TIME_FMT.format(new Date(message.created_at))}
+          {timeFmt.format(new Date(message.created_at))}
           {isMine && message.read_at && <span className="ml-1">✓✓</span>}
         </div>
       </div>

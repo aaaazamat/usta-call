@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
 import { AlertCircle, Briefcase, Loader2, Star, Wrench } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useMasterMe } from "@/lib/api/master-me-hooks";
 import { useAuthStore } from "@/lib/auth/store";
 
@@ -17,6 +17,7 @@ import { ProfileEditForm } from "./profile-edit-form";
 
 export function DashboardView() {
   const router = useRouter();
+  const t = useTranslations("dashboard");
   const user = useAuthStore((s) => s.user);
   const { data: profile, isLoading, isError } = useMasterMe();
 
@@ -38,9 +39,9 @@ export function DashboardView() {
   if (isError || !profile) {
     return (
       <div className="rounded-lg border bg-destructive/5 p-8 text-center">
-        <p className="text-destructive">Profil yuklanmadi</p>
+        <p className="text-destructive">{t("loadError")}</p>
         <p className="text-sm text-muted-foreground mt-2">
-          Faqat usta rolidagi foydalanuvchilar uchun mavjud
+          {t("masterOnly")}
         </p>
       </div>
     );
@@ -53,11 +54,11 @@ export function DashboardView() {
     <div className="space-y-6">
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">Usta paneli</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">{t("title")}</h1>
           <p className="text-muted-foreground mt-1">
             {isProfileIncomplete
-              ? "Avvalo o'zingiz haqingizda ma'lumotlarni to'ldiring"
-              : "Profilingizni boshqaring va yangi buyurtmalarni ko'ring"}
+              ? t("subtitleIncomplete")
+              : t("subtitleComplete")}
           </p>
         </div>
         {!isProfileIncomplete && (
@@ -65,7 +66,7 @@ export function DashboardView() {
             href={`/masters/${profile.id}`}
             className="text-sm text-primary hover:underline"
           >
-            Profilingiz mijozlarga qanday ko&apos;rinadi →
+            {t("previewLink")}
           </Link>
         )}
       </div>
@@ -75,12 +76,10 @@ export function DashboardView() {
           <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
           <div className="text-sm">
             <p className="font-medium text-amber-900">
-              Profilingiz hali to&apos;liq emas
+              {t("incompleteTitle")}
             </p>
             <p className="text-amber-800 mt-1">
-              Mijozlar sizni topishi va buyurtmalar ko&apos;rinishi uchun:
-              bio yozing, kasb (kategoriya) tanlang. Bir nechta kasb tanlasangiz
-              ham bo&apos;ladi.
+              {t("incompleteHint")}
             </p>
           </div>
         </div>
@@ -89,31 +88,31 @@ export function DashboardView() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard
           icon={<Star className="h-4 w-4" />}
-          label="Reyting"
+          label={t("rating")}
           value={
             profile.reviews_count_cache > 0
               ? Number(profile.rating_cache).toFixed(1)
               : "—"
           }
-          sub={`${profile.reviews_count_cache} sharh`}
+          sub={t("reviewsCount", { count: profile.reviews_count_cache })}
         />
         <StatCard
           icon={<Briefcase className="h-4 w-4" />}
-          label="Bajarilgan"
+          label={t("completed")}
           value={String(profile.completed_orders_cache)}
-          sub="ish"
+          sub={t("work")}
         />
         <StatCard
           icon={<Wrench className="h-4 w-4" />}
-          label="Kategoriyalar"
+          label={t("categories")}
           value={String(profile.categories.length)}
-          sub="tanlangan"
+          sub={t("selected")}
         />
         <StatCard
           icon={<AlertCircle className="h-4 w-4" />}
-          label="Holat"
-          value={profile.is_available ? "Ochiq" : "Yopiq"}
-          sub={profile.is_available ? "Ish qabul qilamiz" : "Ish qabul qilmaymiz"}
+          label={t("status")}
+          value={profile.is_available ? t("open") : t("closed")}
+          sub={profile.is_available ? t("accepting") : t("notAccepting")}
           highlight={profile.is_available}
         />
       </div>
@@ -123,10 +122,10 @@ export function DashboardView() {
         className="space-y-5"
       >
         <TabsList>
-          <TabsTrigger value="bookings">Kelgan so&apos;rovlar</TabsTrigger>
-          <TabsTrigger value="profile">Profil</TabsTrigger>
+          <TabsTrigger value="bookings">{t("tabBookings")}</TabsTrigger>
+          <TabsTrigger value="profile">{t("tabProfile")}</TabsTrigger>
           <TabsTrigger value="portfolio">
-            Portfolio ({profile.portfolio.length})
+            {t("tabPortfolio")} ({profile.portfolio.length})
           </TabsTrigger>
         </TabsList>
 

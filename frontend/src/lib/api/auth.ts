@@ -66,11 +66,20 @@ export const authApi = {
       .post<TelegramLinkPollResponse>("/auth/telegram/link/poll/", { token })
       .then((r) => r.data),
 
-  // Google OAuth ID token bilan kirish
+  // Google OAuth ID token bilan kirish (rasmiy GoogleLogin komponenti)
   googleLogin: (idToken: string, role?: Exclude<Role, "admin">) =>
     api
       .post<GoogleLoginResponse>("/auth/google/", {
         id_token: idToken,
+        ...(role ? { role } : {}),
+      })
+      .then((r) => r.data),
+
+  // Google OAuth access token bilan kirish (custom tugma, useGoogleLogin)
+  googleAccessLogin: (accessToken: string, role?: Exclude<Role, "admin">) =>
+    api
+      .post<GoogleLoginResponse>("/auth/google/", {
+        access_token: accessToken,
         ...(role ? { role } : {}),
       })
       .then((r) => r.data),

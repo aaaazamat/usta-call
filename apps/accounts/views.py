@@ -253,8 +253,68 @@ class TelegramWebhookView(APIView):
 # ────────────────────── Google OAuth ──────────────────────
 
 
+def _google_info_from_id_token(id_token_str: str, client_id: str) -> dict:
+    """ID token'ni Google bilan tekshirib, {sub, email, name} qaytaradi."""
+    from google.auth.transport import requests as g_requests
+    from google.oauth2 import id_token as g_id_token
+
+    info = g_id_token.verify_oauth2_token(
+        id_token_str, g_requests.Request(), client_id
+    )
+    return {
+        "sub": info.get("sub"),
+        "email": info.get("email") or "",
+        "name": info.get("name") or "",
+    }
+
+
+def _google_info_from_access_token(access_token: str, client_id: str) -> dict:
+    """Access token'ni Google tokeninfo orqali tekshiradi (aud == bizning client_id).
+
+    `useGoogleLogin` (implicit oqim) custom tugmada ID token emas, access token
+    qaytaradi. Token bizning ilova uchun berilganini tasdiqlash uchun `aud`/`azp`
+    ni client_id bilan solishtiramiz (token-substitution hujumini oldini olish).
+    """
+    import httpx
+
+    resp = httpx.get(
+        "https://oauth2.googleapis.com/tokeninfo",
+        params={"access_token": access_token},
+        timeout=10,
+    )
+    if resp.status_code != 200:
+        raise ValueError(f"tokeninfo xatosi: {resp.status_code}")
+    data = resp.json()
+
+    audiences = {data.get("aud"), data.get("azp")}
+    if client_id not in audiences:
+        raise ValueError("access token boshqa ilova uchun berilgan (aud mos emas)")
+
+    name = ""
+    try:
+        u = httpx.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+            timeout=10,
+        )
+        if u.status_code == 200:
+            name = u.json().get("name") or ""
+    except Exception:  # noqa: BLE001 — name ixtiyoriy
+        pass
+
+    return {
+        "sub": data.get("sub"),
+        "email": data.get("email") or "",
+        "name": name,
+    }
+
+
 class GoogleLoginView(APIView):
-    """Frontend Google'dan olgan ID token'ni tekshirib, JWT qaytaradi.
+    """Frontend Google'dan olgan token'ni tekshirib, JWT qaytaradi.
+
+    Ikki xil token qo'llab-quvvatlanadi:
+      - `id_token`     — Google'ning rasmiy tugmasidan (GoogleLogin komponenti)
+      - `access_token` — custom tugmadan (useGoogleLogin implicit oqimi)
 
     Foydalanuvchi google_id bo'yicha qidiriladi, yo'q bo'lsa yaratiladi.
     Birinchi marta kirgan foydalanuvchida `needs_phone: true` qaytariladi —
@@ -265,8 +325,9 @@ class GoogleLoginView(APIView):
 
     def post(self, request):
         id_token_str = (request.data.get("id_token") or "").strip()
-        if not id_token_str:
-            return Response({"detail": "id_token kerak"}, status=400)
+        access_token_str = (request.data.get("access_token") or "").strip()
+        if not id_token_str and not access_token_str:
+            return Response({"detail": "id_token yoki access_token kerak"}, status=400)
 
         # Birinchi marta ro'yxatdan o'tganida tanlangan rol (default: mijoz)
         requested_role = request.data.get("role") or Role.CLIENT
@@ -278,14 +339,12 @@ class GoogleLoginView(APIView):
             return Response({"detail": "Google OAuth sozlanmagan"}, status=503)
 
         try:
-            from google.auth.transport import requests as g_requests
-            from google.oauth2 import id_token as g_id_token
-
-            info = g_id_token.verify_oauth2_token(
-                id_token_str, g_requests.Request(), client_id
-            )
+            if id_token_str:
+                info = _google_info_from_id_token(id_token_str, client_id)
+            else:
+                info = _google_info_from_access_token(access_token_str, client_id)
         except Exception as exc:
-            logger.warning("Google ID token tekshiruv xatosi: %s", exc)
+            logger.warning("Google token tekshiruv xatosi: %s", exc)
             return Response({"detail": "Google token noto'g'ri"}, status=400)
 
         google_id = info.get("sub")

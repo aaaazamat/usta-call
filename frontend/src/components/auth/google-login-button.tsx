@@ -1,8 +1,11 @@
 "use client";
 
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { GoogleOAuthProvider, useGoogleLogin } from "@react-oauth/google";
+import { motion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { authApi } from "@/lib/api/auth";
@@ -20,11 +23,18 @@ interface Props {
   onNeedsPhone?: () => void;
 }
 
-export function GoogleLoginButton({
-  redirectTo = "/",
-  role,
-  onNeedsPhone,
-}: Props) {
+export function GoogleLoginButton(props: Props) {
+  if (!GOOGLE_CLIENT_ID) {
+    return null; // Google sozlanmagan bo'lsa, tugma ko'rinmaydi
+  }
+  return (
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <GoogleButtonInner {...props} />
+    </GoogleOAuthProvider>
+  );
+}
+
+function GoogleButtonInner({ redirectTo = "/", role, onNeedsPhone }: Props) {
   const router = useRouter();
   const t = useTranslations("auth.google");
   const tForm = useTranslations("auth.form");
@@ -33,71 +43,68 @@ export function GoogleLoginButton({
   const redirectTarget = nextParam?.startsWith("/") ? nextParam : redirectTo;
   const setSession = useAuthStore((s) => s.setSession);
 
-  if (!GOOGLE_CLIENT_ID) {
-    return null; // Google sozlanmagan bo'lsa, tugma ko'rinmaydi
-  }
+  const [loading, setLoading] = useState(false);
+
+  const login = useGoogleLogin({
+    flow: "implicit",
+    scope: "openid email profile",
+    onSuccess: async (tokenResponse) => {
+      const accessToken = tokenResponse.access_token;
+      if (!accessToken) {
+        toast.error(t("noData"));
+        setLoading(false);
+        return;
+      }
+      try {
+        const result = await authApi.googleAccessLogin(accessToken, role);
+        setSession(result.tokens, result.user);
+        if (result.needs_phone) {
+          toast.info(t("addPhone"));
+          onNeedsPhone?.();
+        } else {
+          toast.success(
+            result.is_new_user ? tForm("welcomeToast") : tForm("loggedIn"),
+          );
+          router.push(redirectTarget);
+          router.refresh();
+        }
+      } catch (err) {
+        toast.error(getApiErrorMessage(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      toast.error(t("cancelled"));
+      setLoading(false);
+    },
+    onNonOAuthError: () => {
+      // Foydalanuvchi popup'ni yopdi yoki bekor qildi
+      setLoading(false);
+    },
+  });
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      {/*
-        Google'ning rasmiy tugmasi iframe ichida render bo'ladi va uni
-        to'g'ridan-to'g'ri stillab bo'lmaydi (cross-origin). Shuning uchun
-        ostiga chiroyli "custom" tugma chizamiz, ustiga esa rasmiy Google
-        tugmasini shaffof (opacity-0) qilib, butun maydonni qoplaydigan
-        darajada kattalashtirib qo'yamiz. Bosish aynan shu ko'rinmas
-        tugmaga tushadi va ID token oqimi o'zgarishsiz ishlayveradi.
-      */}
-      <div className="group relative h-12 w-full select-none">
-        {/* Ko'rinadigan chiroyli qatlam (bosilmaydi) */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-2.5 rounded-xl border border-border bg-white font-semibold text-gray-700 shadow-md transition-all duration-200 group-hover:scale-[1.01] group-hover:border-gray-300 group-hover:shadow-lg group-active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-100 dark:group-hover:border-zinc-700">
+    <motion.button
+      type="button"
+      onClick={() => {
+        setLoading(true);
+        login();
+      }}
+      disabled={loading}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.98 }}
+      className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-border bg-white font-semibold text-gray-700 shadow-md transition-shadow hover:border-gray-300 hover:shadow-lg disabled:opacity-60 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-700"
+    >
+      {loading ? (
+        <Loader2 className="h-5 w-5 animate-spin" />
+      ) : (
+        <>
           <GoogleIcon className="h-5 w-5" />
           <span>{t("continueWith")}</span>
-        </div>
-
-        {/* Haqiqiy Google tugmasi — ko'rinmas, maydonni to'liq qoplaydi */}
-        <div className="absolute inset-0 z-10 overflow-hidden rounded-xl opacity-0">
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-[1.7]">
-            <GoogleLogin
-              size="large"
-              width="360"
-              shape="rectangular"
-              theme="outline"
-              text="continue_with"
-              onSuccess={async (credential) => {
-                if (!credential.credential) {
-                  toast.error(t("noData"));
-                  return;
-                }
-                try {
-                  const result = await authApi.googleLogin(
-                    credential.credential,
-                    role,
-                  );
-                  setSession(result.tokens, result.user);
-                  if (result.needs_phone) {
-                    toast.info(t("addPhone"));
-                    onNeedsPhone?.();
-                  } else {
-                    toast.success(
-                      result.is_new_user
-                        ? tForm("welcomeToast")
-                        : tForm("loggedIn"),
-                    );
-                    router.push(redirectTarget);
-                    router.refresh();
-                  }
-                } catch (err) {
-                  toast.error(getApiErrorMessage(err));
-                }
-              }}
-              onError={() => {
-                toast.error(t("cancelled"));
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </GoogleOAuthProvider>
+        </>
+      )}
+    </motion.button>
   );
 }
 

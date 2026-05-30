@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
@@ -16,27 +17,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "@/i18n/navigation";
 import { useCategories, useRegions } from "@/lib/api/masters-hooks";
 import { useCreateOrder } from "@/lib/api/orders-hooks";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import type { Urgency } from "@/lib/api/types";
 
-const URGENCY_OPTIONS: { value: Urgency; label: string; desc: string }[] = [
-  { value: "low", label: "Shoshilinch emas", desc: "Bir necha kun ichida" },
-  { value: "normal", label: "Oddiy", desc: "1-2 kun ichida" },
-  { value: "high", label: "Tezkor", desc: "Bugun" },
-  { value: "emergency", label: "Favqulodda", desc: "Hozir, darhol" },
-];
-
 const MAX_IMAGES = 5;
 
 export function OrderForm() {
   const router = useRouter();
+  const t = useTranslations("orders.form");
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category");
   const createOrder = useCreateOrder();
   const { data: categories } = useCategories();
   const { data: regions } = useRegions();
+
+  const URGENCY_OPTIONS: { value: Urgency; label: string; desc: string }[] = [
+    { value: "low", label: t("urgency.lowLabel"), desc: t("urgency.lowDesc") },
+    { value: "normal", label: t("urgency.normalLabel"), desc: t("urgency.normalDesc") },
+    { value: "high", label: t("urgency.highLabel"), desc: t("urgency.highDesc") },
+    { value: "emergency", label: t("urgency.emergencyLabel"), desc: t("urgency.emergencyDesc") },
+  ];
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -56,18 +59,18 @@ export function OrderForm() {
     if (!files) return;
     const remaining = MAX_IMAGES - images.length;
     if (remaining <= 0) {
-      toast.error(`Maksimal ${MAX_IMAGES} ta rasm yuklash mumkin`);
+      toast.error(t("validation.maxImages", { max: MAX_IMAGES }));
       return;
     }
     const validNew = Array.from(files)
       .slice(0, remaining)
       .filter((f) => {
         if (!f.type.startsWith("image/")) {
-          toast.error(`${f.name} — faqat rasm bo'lishi kerak`);
+          toast.error(t("validation.onlyImage", { name: f.name }));
           return false;
         }
         if (f.size > 8 * 1024 * 1024) {
-          toast.error(`${f.name} — 8MB dan oshmasligi kerak`);
+          toast.error(t("validation.maxSize", { name: f.name }));
           return false;
         }
         return true;
@@ -78,15 +81,15 @@ export function OrderForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || title.trim().length < 5) {
-      toast.error("Sarlavhani to'liqroq yozing (kamida 5 belgi)");
+      toast.error(t("validation.titleShort"));
       return;
     }
     if (!description.trim() || description.trim().length < 15) {
-      toast.error("Tavsifni batafsilroq yozing (kamida 15 belgi)");
+      toast.error(t("validation.descShort"));
       return;
     }
     if (!address.trim()) {
-      toast.error("Manzilni kiriting");
+      toast.error(t("validation.addressRequired"));
       return;
     }
 
@@ -104,7 +107,7 @@ export function OrderForm() {
       },
       {
         onSuccess: (order) => {
-          toast.success("Buyurtma yaratildi! Mos ustalar tanlanmoqda...");
+          toast.success(t("createSuccess"));
           router.push(`/orders/${order.id}`);
         },
         onError: (err) => toast.error(getApiErrorMessage(err)),
@@ -114,48 +117,48 @@ export function OrderForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      <Section title="Asosiy ma'lumot">
+      <Section title={t("basicInfo")}>
         <div className="space-y-2">
           <Label htmlFor="title">
-            Sarlavha <span className="text-destructive">*</span>
+            {t("titleLabel")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Masalan: Vanna xonasiga jo'mrak o'rnatish"
+            placeholder={t("titlePlaceholder")}
             maxLength={180}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="description">
-            Batafsil tavsif <span className="text-destructive">*</span>
+            {t("descLabel")} <span className="text-destructive">*</span>
           </Label>
           <Textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ish nima ekanligini batafsil yozing — ustaga aniqroq tushunishga yordam beradi"
+            placeholder={t("descPlaceholder")}
             rows={5}
           />
           <p className="text-xs text-muted-foreground">
-            Tavsif qancha aniq bo&apos;lsa, AI shuncha mos ustani topadi
+            {t("descHint")}
           </p>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Kategoriya</Label>
+            <Label>{t("category")}</Label>
             <Select
               value={category ?? ""}
               onValueChange={(v) => setCategory(v || null)}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Kategoriyani tanlang (ixtiyoriy)">
+                <SelectValue placeholder={t("categoryPlaceholder")}>
                   {(value) =>
                     topCategories.find((c) => String(c.id) === value)?.name ??
-                    "Kategoriyani tanlang"
+                    t("categorySelect")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -170,13 +173,13 @@ export function OrderForm() {
           </div>
 
           <div className="space-y-2">
-            <Label>Hudud</Label>
+            <Label>{t("region")}</Label>
             <Select value={region ?? ""} onValueChange={(v) => setRegion(v || null)}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Hududni tanlang">
+                <SelectValue placeholder={t("regionPlaceholder")}>
                   {(value) =>
                     viloyatlar.find((r) => String(r.id) === value)?.name ??
-                    "Hududni tanlang"
+                    t("regionPlaceholder")
                   }
                 </SelectValue>
               </SelectTrigger>
@@ -193,19 +196,19 @@ export function OrderForm() {
 
         <div className="space-y-2">
           <Label htmlFor="address">
-            Manzil <span className="text-destructive">*</span>
+            {t("address")} <span className="text-destructive">*</span>
           </Label>
           <Input
             id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            placeholder="Masalan: Toshkent, Yunusobod tumani, Bog'ishamol 7"
+            placeholder={t("addressPlaceholder")}
             maxLength={250}
           />
         </div>
       </Section>
 
-      <Section title="Shoshilinchlik darajasi">
+      <Section title={t("urgencyTitle")}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
           {URGENCY_OPTIONS.map((opt) => (
             <button
@@ -226,10 +229,10 @@ export function OrderForm() {
         </div>
       </Section>
 
-      <Section title="Byudjet" optional>
+      <Section title={t("budgetTitle")} optional optionalLabel={t("optional")}>
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="budget_from">Dan (so&apos;m)</Label>
+            <Label htmlFor="budget_from">{t("budgetFrom")}</Label>
             <Input
               id="budget_from"
               type="number"
@@ -241,7 +244,7 @@ export function OrderForm() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="budget_to">Gacha (so&apos;m)</Label>
+            <Label htmlFor="budget_to">{t("budgetTo")}</Label>
             <Input
               id="budget_to"
               type="number"
@@ -255,7 +258,7 @@ export function OrderForm() {
         </div>
       </Section>
 
-      <Section title="Rasmlar" optional>
+      <Section title={t("imagesTitle")} optional optionalLabel={t("optional")}>
         <input
           ref={fileRef}
           type="file"
@@ -283,12 +286,12 @@ export function OrderForm() {
               className="aspect-square rounded-lg border-2 border-dashed hover:border-foreground/50 flex flex-col items-center justify-center text-muted-foreground hover:text-foreground transition"
             >
               <ImagePlus className="h-6 w-6 mb-1" />
-              <span className="text-xs">Rasm qo&apos;shish</span>
+              <span className="text-xs">{t("addImage")}</span>
             </button>
           )}
         </div>
         <p className="text-xs text-muted-foreground">
-          Maksimal {MAX_IMAGES} ta rasm, har biri 8MB gacha
+          {t("imagesHint", { max: MAX_IMAGES })}
         </p>
       </Section>
 
@@ -301,10 +304,10 @@ export function OrderForm() {
         >
           {createOrder.isPending ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" /> Yaratilmoqda...
+              <Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("creating")}
             </>
           ) : (
-            "Buyurtmani e'lon qilish"
+            t("publish")
           )}
         </Button>
         <Button
@@ -314,7 +317,7 @@ export function OrderForm() {
           disabled={createOrder.isPending}
           className="w-full sm:w-auto order-2 sm:order-1"
         >
-          Bekor qilish
+          {t("cancel")}
         </Button>
       </div>
     </form>
@@ -324,17 +327,19 @@ export function OrderForm() {
 function Section({
   title,
   optional,
+  optionalLabel,
   children,
 }: {
   title: string;
   optional?: boolean;
+  optionalLabel?: string;
   children: React.ReactNode;
 }) {
   return (
     <section className="space-y-4">
       <div className="flex items-baseline gap-2">
         <h2 className="text-lg font-semibold">{title}</h2>
-        {optional && <span className="text-xs text-muted-foreground">ixtiyoriy</span>}
+        {optional && <span className="text-xs text-muted-foreground">{optionalLabel}</span>}
       </div>
       {children}
     </section>
@@ -342,16 +347,17 @@ function Section({
 }
 
 function ImagePreview({ file, onRemove }: { file: File; onRemove: () => void }) {
+  const t = useTranslations("orders.form");
   const url = URL.createObjectURL(file);
   return (
     <div className="relative aspect-square rounded-lg overflow-hidden border bg-muted group">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt="Yuklangan rasm" className="h-full w-full object-cover" />
+      <img src={url} alt={t("uploadedImage")} className="h-full w-full object-cover" />
       <button
         type="button"
         onClick={onRemove}
         className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-black/70 text-white inline-flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-        aria-label="Olib tashlash"
+        aria-label={t("removeImage")}
       >
         <X className="h-3 w-3" />
       </button>

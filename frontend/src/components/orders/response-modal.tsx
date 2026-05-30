@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -29,6 +30,7 @@ interface Props {
 }
 
 export function ResponseModal({ orderId, open, onOpenChange }: Props) {
+  const t = useTranslations("orders.responseModal");
   const { data: existing } = useMyOrderResponse(orderId, open);
   const sendMutation = useSendOrderResponse(orderId);
 
@@ -50,7 +52,7 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
 
   const handleSubmit = () => {
     if (!priceOffer || Number(priceOffer) <= 0) {
-      toast.error("Narxni kiriting");
+      toast.error(t("priceRequired"));
       return;
     }
     sendMutation.mutate(
@@ -61,7 +63,7 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
       },
       {
         onSuccess: () => {
-          toast.success(existing ? "Taklif yangilandi" : "Taklif yuborildi");
+          toast.success(existing ? t("updated") : t("sent"));
           onOpenChange(false);
         },
         onError: (err) => toast.error(getApiErrorMessage(err)),
@@ -74,17 +76,17 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {existing ? "Taklifni tahrirlash" : "Taklif yuborish"}
+            {existing ? t("editTitle") : t("createTitle")}
           </DialogTitle>
           <DialogDescription>
-            Mijozga narx, xabar va bajarish muddatini taklif qiling
+            {t("desc")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="price">
-              Narx (so&apos;m) <span className="text-destructive">*</span>
+              {t("priceLabel")} <span className="text-destructive">*</span>
             </Label>
             <Input
               id="price"
@@ -99,7 +101,7 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="eta">Bajarish muddati (soatlarda)</Label>
+            <Label htmlFor="eta">{t("etaLabel")}</Label>
             <Input
               id="eta"
               type="number"
@@ -108,17 +110,17 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
               max={1000}
               value={etaHours}
               onChange={(e) => setEtaHours(e.target.value)}
-              placeholder="Masalan: 4"
+              placeholder={t("etaPlaceholder")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message">Xabar (ixtiyoriy)</Label>
+            <Label htmlFor="message">{t("messageLabel")}</Label>
             <Textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Mijozga qo'shimcha izoh yoki savol..."
+              placeholder={t("messagePlaceholder")}
               rows={4}
             />
           </div>
@@ -126,17 +128,17 @@ export function ResponseModal({ orderId, open, onOpenChange }: Props) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Bekor qilish
+            {t("cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={sendMutation.isPending}>
             {sendMutation.isPending ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin mr-2" /> Yuborilmoqda...
+                <Loader2 className="h-4 w-4 animate-spin mr-2" /> {t("sending")}
               </>
             ) : existing ? (
-              "Yangilash"
+              t("update")
             ) : (
-              "Yuborish"
+              t("send")
             )}
           </Button>
         </DialogFooter>

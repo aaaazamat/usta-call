@@ -1,11 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
-  AlertCircle,
   Briefcase,
   Calendar,
   CheckCircle2,
@@ -24,6 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookMasterDialog } from "@/components/bookings/book-master-dialog";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ordersApi } from "@/lib/api/orders";
 import {
   useOrderDetail,
@@ -32,48 +31,42 @@ import {
 } from "@/lib/api/orders-hooks";
 import { useMySentBookings } from "@/lib/api/bookings-hooks";
 import { getApiErrorMessage } from "@/lib/api/errors";
-import type { MasterListItem, OrderStatus, Urgency } from "@/lib/api/types";
+import type { MasterListItem, OrderStatus } from "@/lib/api/types";
 import { useAuthStore } from "@/lib/auth/store";
 
-const STATUS_LABELS: Record<OrderStatus, { label: string; cls: string }> = {
-  draft: { label: "Qoralama", cls: "bg-muted text-muted-foreground" },
-  published: { label: "Aktiv", cls: "bg-blue-100 text-blue-800 border-blue-200" },
-  matched: { label: "Usta tanlandi", cls: "bg-amber-100 text-amber-800 border-amber-200" },
-  in_progress: {
-    label: "Ish davom etyapti",
-    cls: "bg-indigo-100 text-indigo-800 border-indigo-200",
-  },
-  completed: {
-    label: "Yakunlangan",
-    cls: "bg-green-100 text-green-800 border-green-200",
-  },
-  cancelled: {
-    label: "Bekor qilingan",
-    cls: "bg-destructive/10 text-destructive border-destructive/30",
-  },
+const STATUS_CLS: Record<OrderStatus, string> = {
+  draft: "bg-muted text-muted-foreground",
+  published: "bg-blue-100 text-blue-800 border-blue-200",
+  matched: "bg-amber-100 text-amber-800 border-amber-200",
+  in_progress: "bg-indigo-100 text-indigo-800 border-indigo-200",
+  completed: "bg-green-100 text-green-800 border-green-200",
+  cancelled: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
-const URGENCY_LABELS: Record<Urgency, { label: string; cls: string }> = {
-  low: { label: "Shoshilinch emas", cls: "" },
-  normal: { label: "Oddiy", cls: "" },
-  high: { label: "Tezkor", cls: "text-orange-700" },
-  emergency: { label: "Favqulodda", cls: "text-destructive font-semibold" },
+const URGENCY_CLS: Record<string, string> = {
+  low: "",
+  normal: "",
+  high: "text-orange-700",
+  emergency: "text-destructive font-semibold",
 };
 
-const DATE_FMT = new Intl.DateTimeFormat("uz-UZ", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatMoney(value: string): string {
-  return Number(value).toLocaleString("uz-UZ") + " so'm";
-}
+const LOCALE_MAP: Record<string, string> = { uz: "uz-UZ", kk: "uz-UZ", ru: "ru-RU" };
 
 export function OrderDetailView({ orderId }: { orderId: number }) {
   const router = useRouter();
+  const t = useTranslations("orders");
+  const td = useTranslations("orders.detail");
+  const locale = useLocale();
+  const intlLocale = LOCALE_MAP[locale] ?? "uz-UZ";
+  const dateFmt = new Intl.DateTimeFormat(intlLocale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const formatMoney = (value: string): string =>
+    Number(value).toLocaleString(intlLocale) + " " + td("moneySuffix");
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
 
@@ -83,7 +76,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
   const cancelMutation = useMutation({
     mutationFn: () => ordersApi.cancel(orderId),
     onSuccess: () => {
-      toast.success("Buyurtma bekor qilindi");
+      toast.success(td("cancelled"));
       queryClient.invalidateQueries({ queryKey: ordersKeys.detail(orderId) });
     },
     onError: (err) => toast.error(getApiErrorMessage(err)),
@@ -94,16 +87,16 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
   if (isError || !order) {
     return (
       <div className="rounded-lg border bg-destructive/5 p-8 text-center">
-        <p className="text-destructive font-medium">Buyurtma topilmadi</p>
+        <p className="text-destructive font-medium">{td("notFound")}</p>
         <Button variant="outline" className="mt-4" onClick={() => router.push("/")}>
-          Bosh sahifaga qaytish
+          {td("backHome")}
         </Button>
       </div>
     );
   }
 
-  const statusInfo = STATUS_LABELS[order.status];
-  const urgencyInfo = URGENCY_LABELS[order.urgency];
+  const statusCls = STATUS_CLS[order.status];
+  const urgencyCls = URGENCY_CLS[order.urgency];
   const canShowMatches =
     isOwner && (order.status === "published" || order.status === "matched");
 
@@ -113,9 +106,11 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
         <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge className={statusInfo.cls + " border"}>{statusInfo.label}</Badge>
+              <Badge className={statusCls + " border"}>{t(`status.${order.status}`)}</Badge>
               {order.category && <Badge variant="outline">{order.category.name}</Badge>}
-              <span className={"text-sm " + urgencyInfo.cls}>{urgencyInfo.label}</span>
+              <span className={"text-sm " + urgencyCls}>
+                {t(`form.urgency.${order.urgency}Label`)}
+              </span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold">{order.title}</h1>
           </div>
@@ -124,39 +119,39 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
               <Button
                 variant="outline"
                 onClick={() => {
-                  if (confirm("Buyurtmani bekor qilmoqchimisiz?")) cancelMutation.mutate();
+                  if (confirm(td("cancelConfirm"))) cancelMutation.mutate();
                 }}
                 disabled={cancelMutation.isPending}
               >
-                <XCircle className="h-4 w-4 mr-2" /> Buyurtmani bekor qilish
+                <XCircle className="h-4 w-4 mr-2" /> {td("cancelOrder")}
               </Button>
             )}
         </div>
 
         <div className="grid sm:grid-cols-2 gap-3 rounded-xl border bg-card p-5 text-sm">
-          <InfoRow icon={<MapPin className="h-4 w-4" />} label="Manzil">
+          <InfoRow icon={<MapPin className="h-4 w-4" />} label={td("address")}>
             {order.address}
             {order.region && (
               <span className="text-muted-foreground"> · {order.region.name}</span>
             )}
           </InfoRow>
-          <InfoRow icon={<Calendar className="h-4 w-4" />} label="Yaratilgan">
-            {DATE_FMT.format(new Date(order.created_at))}
+          <InfoRow icon={<Calendar className="h-4 w-4" />} label={td("createdAt")}>
+            {dateFmt.format(new Date(order.created_at))}
           </InfoRow>
           {(order.budget_from || order.budget_to) && (
-            <InfoRow icon={<Briefcase className="h-4 w-4" />} label="Byudjet">
+            <InfoRow icon={<Briefcase className="h-4 w-4" />} label={td("budget")}>
               {order.budget_from && order.budget_to
                 ? `${formatMoney(order.budget_from)} – ${formatMoney(order.budget_to)}`
                 : order.budget_from
-                  ? `${formatMoney(order.budget_from)} dan`
-                  : `${formatMoney(order.budget_to!)} gacha`}
+                  ? td("budgetFromOnly", { amount: formatMoney(order.budget_from) })
+                  : td("budgetToOnly", { amount: formatMoney(order.budget_to!) })}
             </InfoRow>
           )}
         </div>
       </header>
 
       <section>
-        <h2 className="text-sm font-semibold text-muted-foreground mb-3">Tavsif</h2>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-3">{td("description")}</h2>
         <p className="text-sm leading-relaxed whitespace-pre-wrap rounded-xl border bg-card p-5">
           {order.description}
         </p>
@@ -164,7 +159,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
 
       {order.images.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-muted-foreground mb-3">Rasmlar</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground mb-3">{td("imagesTitle")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {order.images.map((img) => (
               <div
@@ -173,7 +168,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
               >
                 <Image
                   src={img.image}
-                  alt="Buyurtma rasmi"
+                  alt={td("orderImage")}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 50vw, 25vw"
@@ -188,7 +183,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
       {order.ai_summary && (
         <section className="rounded-xl border bg-primary/5 border-primary/20 p-5">
           <div className="flex items-center gap-2 text-sm font-semibold text-primary mb-2">
-            <Sparkles className="h-4 w-4" /> AI tahlili
+            <Sparkles className="h-4 w-4" /> {td("aiSummary")}
           </div>
           <p className="text-sm">{order.ai_summary}</p>
           {order.ai_extracted_skills.length > 0 && (
@@ -206,7 +201,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
       {order.selected_master && (
         <section>
           <h2 className="text-sm font-semibold text-muted-foreground mb-3">
-            Tanlangan usta
+            {td("selectedMaster")}
           </h2>
           <Link
             href={`/masters/${order.selected_master.id}`}
@@ -221,7 +216,7 @@ export function OrderDetailView({ orderId }: { orderId: number }) {
               </Avatar>
               <div className="flex-1">
                 <div className="font-semibold">
-                  {order.selected_master.user.full_name || "Usta"}
+                  {order.selected_master.user.full_name || td("master")}
                 </div>
                 <a
                   href={`tel:${order.selected_master.user.phone}`}
@@ -251,6 +246,7 @@ function OrderMatchesSection({
   orderId: number;
   orderTitle: string;
 }) {
+  const td = useTranslations("orders.detail");
   const { data: matches, isLoading } = useOrderMatches(orderId);
   const { data: sentBookings } = useMySentBookings();
 
@@ -265,7 +261,7 @@ function OrderMatchesSection({
     <section>
       <div className="flex items-center gap-2 mb-4">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold">AI tavsiya etgan ustalar</h2>
+        <h2 className="text-xl font-bold">{td("aiRecommended")}</h2>
       </div>
 
       {isLoading ? (
@@ -277,7 +273,7 @@ function OrderMatchesSection({
       ) : !matches || matches.length === 0 ? (
         <div className="rounded-lg border bg-muted/30 p-6 text-center text-sm text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
-          Mos ustalar tahlil qilinmoqda... Bir necha soniyada qayta tekshiring.
+          {td("analyzing")}
         </div>
       ) : (
         <div className="space-y-3">
@@ -310,6 +306,7 @@ function MatchCard({
   orderId: number;
   alreadyBooked: boolean;
 }) {
+  const td = useTranslations("orders.detail");
   const [bookOpen, setBookOpen] = useState(false);
   const scoreNum = Number(score);
   const rating = Number(master.rating_cache);
@@ -333,11 +330,11 @@ function MatchCard({
               href={`/masters/${master.id}`}
               className="font-semibold hover:underline"
             >
-              {master.user.full_name || "Usta"}
+              {master.user.full_name || td("master")}
             </Link>
             <div className="flex items-center gap-2">
               <Badge className="bg-primary/10 text-primary border-primary/30">
-                {scorePercent}% mos
+                {td("matchPercent", { percent: scorePercent })}
               </Badge>
             </div>
           </div>
@@ -350,14 +347,14 @@ function MatchCard({
                 <span>({master.reviews_count_cache})</span>
               </span>
             ) : (
-              <span>Sharhlar yo&apos;q</span>
+              <span>{td("noReviews")}</span>
             )}
-            <span>{master.completed_orders_cache} ish bajargan</span>
+            <span>{td("workDone", { count: master.completed_orders_cache })}</span>
             {master.experience_years > 0 && (
-              <span>{master.experience_years} yil tajriba</span>
+              <span>{td("expYears", { years: master.experience_years })}</span>
             )}
             {!master.is_available && (
-              <span className="text-amber-700 font-medium">· Hozir band</span>
+              <span className="text-amber-700 font-medium">· {td("busyNow")}</span>
             )}
           </div>
 
@@ -369,7 +366,7 @@ function MatchCard({
             {alreadyBooked ? (
               <Badge variant="secondary" className="text-sm py-1.5 px-3">
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1.5 text-green-600" />
-                So&apos;rov yuborildi
+                {td("requestSent")}
               </Badge>
             ) : (
               <Button
@@ -378,7 +375,7 @@ function MatchCard({
                 disabled={!master.is_available}
               >
                 <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                {master.is_available ? "Band qilish" : "Hozir band"}
+                {master.is_available ? td("bookNow") : td("busyNow")}
               </Button>
             )}
             <Button
@@ -387,18 +384,18 @@ function MatchCard({
               render={
                 <a
                   href={`tel:${master.user.phone}`}
-                  aria-label={`${master.user.full_name} ga qo'ng'iroq`}
+                  aria-label={td("call")}
                 />
               }
             >
-              <Phone className="h-3.5 w-3.5 mr-1.5" /> Qo&apos;ng&apos;iroq
+              <Phone className="h-3.5 w-3.5 mr-1.5" /> {td("call")}
             </Button>
             <Button
               size="sm"
               variant="ghost"
               render={<Link href={`/masters/${master.id}`} />}
             >
-              Profilni ko&apos;rish
+              {td("viewProfile")}
             </Button>
           </div>
         </div>
@@ -406,7 +403,7 @@ function MatchCard({
 
       <BookMasterDialog
         masterId={master.id}
-        masterName={master.user.full_name || "Usta"}
+        masterName={master.user.full_name || td("master")}
         open={bookOpen}
         onOpenChange={setBookOpen}
         preselectedOrderId={orderId}

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useLocale, useTranslations } from "next-intl";
 import { Check, Clock, Loader2, Star } from "lucide-react";
 import { toast } from "sonner";
 
@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "@/i18n/navigation";
 import {
   useAcceptOrderResponse,
   useOrderResponses,
@@ -15,16 +16,7 @@ import {
 import { getApiErrorMessage } from "@/lib/api/errors";
 import type { OrderResponse } from "@/lib/api/types";
 
-const DATE_FMT = new Intl.DateTimeFormat("uz-UZ", {
-  month: "short",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-function formatMoney(value: string): string {
-  return Number(value).toLocaleString("uz-UZ") + " so'm";
-}
+const LOCALE_MAP: Record<string, string> = { uz: "uz-UZ", kk: "uz-UZ", ru: "ru-RU" };
 
 interface Props {
   orderId: number;
@@ -33,6 +25,7 @@ interface Props {
 }
 
 export function ResponsesList({ orderId, canAccept }: Props) {
+  const t = useTranslations("orders.responsesList");
   const { data: responses, isLoading } = useOrderResponses(orderId);
 
   if (isLoading) {
@@ -48,8 +41,7 @@ export function ResponsesList({ orderId, canAccept }: Props) {
   if (!responses || responses.length === 0) {
     return (
       <div className="rounded-lg border bg-muted/30 p-8 text-center text-sm text-muted-foreground">
-        Hali takliflar yo&apos;q. Ustalar javob berishini kuting yoki AI tavsiyalari orqali
-        ulardan birini tanlang.
+        {t("empty")}
       </div>
     );
   }
@@ -77,18 +69,24 @@ function ResponseCard({
   orderId: number;
   canAccept: boolean;
 }) {
+  const t = useTranslations("orders.responsesList");
+  const locale = useLocale();
+  const dateFmt = new Intl.DateTimeFormat(LOCALE_MAP[locale] ?? "uz-UZ", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const formatMoney = (value: string): string =>
+    Number(value).toLocaleString(LOCALE_MAP[locale] ?? "uz-UZ") + " " + t("moneySuffix");
   const accept = useAcceptOrderResponse(orderId);
   const rating = Number(response.master.rating_cache);
 
   const handleAccept = () => {
-    if (
-      !confirm(
-        `${response.master.user.full_name || "Bu ustani"} buyurtma uchun tanlamoqchimisiz?`,
-      )
-    )
-      return;
+    const name = response.master.user.full_name || t("thisMaster");
+    if (!confirm(t("confirmSelect", { name }))) return;
     accept.mutate(response.id, {
-      onSuccess: () => toast.success("Usta tanlandi"),
+      onSuccess: () => toast.success(t("masterSelected")),
       onError: (err) => toast.error(getApiErrorMessage(err)),
     });
   };
@@ -96,15 +94,15 @@ function ResponseCard({
   const statusBadge =
     response.status === "accepted" ? (
       <Badge className="bg-green-100 text-green-800 border-green-200">
-        <Check className="h-3 w-3 mr-1" /> Tanlangan
+        <Check className="h-3 w-3 mr-1" /> {t("accepted")}
       </Badge>
     ) : response.status === "rejected" ? (
       <Badge variant="outline" className="text-muted-foreground">
-        Rad etilgan
+        {t("rejected")}
       </Badge>
     ) : response.status === "withdrawn" ? (
       <Badge variant="outline" className="text-muted-foreground">
-        Qaytarib olingan
+        {t("withdrawn")}
       </Badge>
     ) : null;
 
@@ -135,7 +133,7 @@ function ResponseCard({
               href={`/masters/${response.master.id}`}
               className="font-semibold hover:underline"
             >
-              {response.master.user.full_name || "Usta"}
+              {response.master.user.full_name || t("master")}
             </Link>
             {statusBadge}
           </div>
@@ -150,10 +148,10 @@ function ResponseCard({
                 <span>({response.master.reviews_count_cache})</span>
               </span>
             ) : (
-              <span>Yangi usta</span>
+              <span>{t("newMaster")}</span>
             )}
-            <span>{response.master.completed_orders_cache} ish bajargan</span>
-            <span>{DATE_FMT.format(new Date(response.created_at))}</span>
+            <span>{t("workDone", { count: response.master.completed_orders_cache })}</span>
+            <span>{dateFmt.format(new Date(response.created_at))}</span>
           </div>
 
           <div className="flex flex-wrap items-baseline gap-3 mb-2">
@@ -161,7 +159,7 @@ function ResponseCard({
             {response.eta_hours != null && (
               <span className="text-sm text-muted-foreground inline-flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
-                {response.eta_hours} soatda bajaradi
+                {t("etaHours", { hours: response.eta_hours })}
               </span>
             )}
           </div>
@@ -180,14 +178,14 @@ function ResponseCard({
                 ) : (
                   <Check className="h-3.5 w-3.5 mr-1.5" />
                 )}
-                Bu ustani tanlash
+                {t("selectThisMaster")}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 render={<Link href={`/masters/${response.master.id}`} />}
               >
-                Profilni ko&apos;rish
+                {t("viewProfile")}
               </Button>
             </div>
           )}

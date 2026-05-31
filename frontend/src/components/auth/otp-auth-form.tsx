@@ -8,7 +8,9 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   CheckCircle2,
+  ExternalLink,
   Loader2,
+  Send,
   Sparkles,
   User as UserIcon,
   Wrench,
@@ -17,7 +19,6 @@ import { toast } from "sonner";
 
 import { AddPhoneDialog } from "@/components/auth/add-phone-dialog";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
-import { TelegramLoginButton } from "@/components/auth/telegram-login-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,7 +62,9 @@ export function OtpAuthForm({
   const [code, setCode] = useState("");
   const [resendIn, setResendIn] = useState(0);
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
-  const [telegramHint, setTelegramHint] = useState<string | null>(null);
+  // Botni hali ulamagan foydalanuvchi uchun: botni ochish deep-link'i.
+  // O'rnatilgan bo'lsa, kod qadamida "botni oching" banneri ko'rsatiladi.
+  const [telegramDeepLink, setTelegramDeepLink] = useState<string | null>(null);
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -81,12 +84,23 @@ export function OtpAuthForm({
         router.refresh();
         return;
       }
-      // Telegram bot bilan ulanmagan — foydalanuvchini Telegram tugmasiga yo'naltirish
+      // Bot hali ulanmagan — botni ochib kontaktni ulashish kerak.
+      // Foydalanuvchi kontaktni ulashgach, bot kodni o'sha yerga yuboradi.
+      // Shu sababli kod qadamiga o'tamiz va "botni oching" bannerini ko'rsatamiz.
       if (data.needs_telegram_link) {
-        setTelegramHint(data.telegram_bot_username ?? "");
+        const link =
+          data.deep_link ||
+          (data.telegram_bot_username
+            ? `https://t.me/${data.telegram_bot_username.replace(/^@/, "")}?start=otp`
+            : "");
+        setTelegramDeepLink(link || null);
+        if (link) window.open(link, "_blank", "noopener,noreferrer");
+        setStep("code");
+        setResendIn(RESEND_SECONDS);
         toast.info(t("telegram.connectFirst"));
         return;
       }
+      setTelegramDeepLink(null);
       setStep("code");
       setResendIn(RESEND_SECONDS);
       toast.success(t("form.codeSent"));
@@ -135,6 +149,7 @@ export function OtpAuthForm({
             onClick={() => {
               setStep("phone");
               setCode("");
+              setTelegramDeepLink(null);
             }}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors group"
           >
@@ -155,9 +170,38 @@ export function OtpAuthForm({
             <p className="text-sm text-muted-foreground">
               <span className="font-semibold text-foreground">{phone}</span>
               <br />
-              {t("otp.sentSuffix")}
+              {telegramDeepLink ? t("telegram.codeViaBot") : t("otp.sentSuffix")}
             </p>
           </div>
+
+          {telegramDeepLink && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 space-y-3 dark:border-sky-900 dark:bg-sky-950/40"
+            >
+              <div className="flex items-start gap-3">
+                <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white inline-flex items-center justify-center">
+                  <Send className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="font-semibold text-sm">{t("telegram.connectTitle")}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {t("telegram.connectSteps")}
+                  </p>
+                </div>
+              </div>
+              <a
+                href={telegramDeepLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 h-11 rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-semibold text-sm shadow-md transition-all"
+              >
+                <ExternalLink className="h-4 w-4" />
+                {t("telegram.openBot")}
+              </a>
+            </motion.div>
+          )}
 
           <div className="flex justify-center">
             <InputOTP
@@ -261,42 +305,14 @@ export function OtpAuthForm({
             </motion.div>
           )}
 
-          {/* Tezkor kirish: Telegram va Google */}
+          {/* Tezkor kirish: Google */}
           <div className="space-y-3">
-            <TelegramLoginButton redirectTo={redirectTarget} />
             <GoogleLoginButton
               redirectTo={redirectTarget}
               role={role === "admin" ? "client" : role}
               onNeedsPhone={() => setPhoneDialogOpen(true)}
             />
           </div>
-
-          {telegramHint !== null && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"
-            >
-              <p className="font-medium mb-0.5">{t("telegram.linkFirstTitle")}</p>
-              <p className="text-amber-800 text-xs">
-                {t("telegram.linkFirstText")}
-                {telegramHint && (
-                  <>
-                    {" "}{t("telegram.linkFirstOr")}{" "}
-                    <a
-                      href={`https://t.me/${telegramHint.replace(/^@/, "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline font-semibold"
-                    >
-                      @{telegramHint.replace(/^@/, "")}
-                    </a>{" "}
-                    {t("telegram.linkFirstGoto")}
-                  </>
-                )}
-              </p>
-            </motion.div>
-          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">

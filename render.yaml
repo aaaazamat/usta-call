@@ -35,14 +35,15 @@ services:
       - key: AI_MODEL_GEMINI
         value: gemini-2.5-flash
       # Beta rejim (OTP'siz kirish — sinov uchun)
+      # Beta o'chirildi — endi haqiqiy OTP (raqam → Telegram bot → kod) ishlaydi
       - key: BETA_AUTO_LOGIN
-        value: "True"
+        value: "False"
       # CORS — Vercel domeni keyinroq qo'shiladi
       - key: CORS_ALLOWED_ORIGINS
         sync: false
-      # SMS / OTP — telegram | console | eskiz
+      # SMS / OTP — telegram | console | eskiz. Telegram bot orqali kod yuboriladi.
       - key: SMS_PROVIDER
-        value: console
+        value: telegram
       # Telegram bot (qo'lda kiritiladi dashboard'da)
       - key: TELEGRAM_BOT_TOKEN
         sync: false

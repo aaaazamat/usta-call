@@ -138,7 +138,27 @@ def handle_update(update: dict[str, Any]) -> None:
             user.is_verified = True
         user.save()
 
-        # Eng yangi pending link tokenni shu user'ga bog'laymiz
+        # Saytda kutilayotgan OTP kodi bo'lsa — endi chat_id ma'lum, kodni shu yerga yuboramiz.
+        # Bu "saytda raqam → botga kod → saytda kod" oqimining yangi user uchun ishlashini ta'minlaydi.
+        from apps.accounts.models import OtpCode
+
+        pending_otp = (
+            OtpCode.objects.filter(phone=normalized, consumed_at__isnull=True)
+            .order_by("-created_at")
+            .first()
+        )
+        sent_code = False
+        if pending_otp and pending_otp.is_valid():
+            send_message(
+                chat_id,
+                "🔐 <b>usta-call</b> saytiga kirish kodi:\n\n"
+                f"<code>{pending_otp.code}</code>\n\n"
+                "Kodni saytdagi maydonga kiriting. 5 daqiqa amal qiladi.",
+                reply_markup={"remove_keyboard": True},
+            )
+            sent_code = True
+
+        # Eski polling oqimi uchun: pending link token bo'lsa shu user'ga bog'laymiz
         tlt = (
             TelegramLinkToken.objects.filter(consumed_at__isnull=True, user__isnull=True)
             .order_by("-created_at")
@@ -148,16 +168,12 @@ def handle_update(update: dict[str, Any]) -> None:
             tlt.user = user
             tlt.consumed_at = timezone.now()
             tlt.save(update_fields=["user", "consumed_at", "updated_at"])
+
+        if not sent_code:
             send_message(
                 chat_id,
-                "✅ Tayyor! Saytga qaytishingiz mumkin — avtomatik kiritildi.",
-                reply_markup={"remove_keyboard": True},
-            )
-        else:
-            send_message(
-                chat_id,
-                "✅ Telefon raqamingiz saqlandi.\n\n"
-                "Endi saytda ro'yxatdan o'tib OTP kodi shu yerga keladi.",
+                "✅ Telefon raqamingiz ulandi.\n\n"
+                "Endi saytda raqamingizni kiriting — kirish kodi shu yerga keladi.",
                 reply_markup={"remove_keyboard": True},
             )
         return

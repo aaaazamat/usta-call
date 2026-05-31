@@ -35,9 +35,11 @@ export interface OtpRequestResponse {
   auto_login?: boolean;
   user?: User;
   tokens?: AuthTokens;
-  /** Telegram bot bilan ulanmagan — frontend Telegram ulanish modalini ochishi kerak */
+  /** Telegram bot bilan ulanmagan — frontend botni ochish deep-link'ini ko'rsatadi */
   needs_telegram_link?: boolean;
   telegram_bot_username?: string;
+  /** Botni ochish uchun deep link: https://t.me/<bot>?start=otp */
+  deep_link?: string;
 }
 
 export interface TelegramLinkStartResponse {

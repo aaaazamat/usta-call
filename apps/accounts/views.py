@@ -70,17 +70,21 @@ class RequestOtpView(APIView):
 
         try:
             send_otp_sms(phone, otp.code)
-        except TelegramNotLinkedError as exc:
-            # Foydalanuvchi Telegram'ga ulanmagan — frontend'ga aniq xato qaytaramiz
+        except TelegramNotLinkedError:
+            # Foydalanuvchi botni hali ulamagan — deep link qaytaramiz.
+            # OTP DB'da saqlanib turadi: foydalanuvchi botda kontaktini ulashganda,
+            # bot aynan shu pending kodni o'sha yerga yuboradi (telegram_bot.handle_update).
+            bot = (getattr(settings, "TELEGRAM_BOT_USERNAME", "") or "").lstrip("@")
+            deep_link = f"https://t.me/{bot}?start=otp" if bot else ""
             return Response(
                 {
-                    "detail": str(exc),
+                    "detail": "Telegram bot orqali kod yuboriladi",
                     "needs_telegram_link": True,
-                    "telegram_bot_username": getattr(
-                        settings, "TELEGRAM_BOT_USERNAME", ""
-                    ),
+                    "telegram_bot_username": bot,
+                    "deep_link": deep_link,
+                    "is_new_user": created,
                 },
-                status=400,
+                status=status.HTTP_200_OK,
             )
 
         return Response(

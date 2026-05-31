@@ -48,9 +48,21 @@ class RegionSerializer(serializers.ModelSerializer):
 
 
 class PortfolioImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = PortfolioImage
         fields = ("id", "image", "order")
+
+    def get_image(self, obj) -> str:
+        """Tashqi havola yoki yuklangan faylning to'liq URL'i."""
+        if obj.external_url:
+            return obj.external_url
+        if obj.image:
+            request = self.context.get("request")
+            url = obj.image.url
+            return request.build_absolute_uri(url) if request else url
+        return ""
 
 
 class PortfolioItemSerializer(serializers.ModelSerializer):

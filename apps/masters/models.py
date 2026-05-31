@@ -210,8 +210,23 @@ class PortfolioImage(models.Model):
     portfolio = models.ForeignKey(
         PortfolioItem, on_delete=models.CASCADE, related_name="images"
     )
-    image = models.ImageField(upload_to="portfolio/")
+    # Usta yuklagan fayl (media). Render free'da restartda yo'qoladi.
+    image = models.ImageField(upload_to="portfolio/", blank=True, null=True)
+    # Tashqi rasm havolasi (internet CDN). Fayl saqlash shart emas, yo'qolmaydi.
+    external_url = models.URLField(_("Tashqi rasm havolasi"), max_length=500, blank=True)
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         ordering = ("order", "id")
+
+    @property
+    def display_url(self) -> str:
+        """Ko'rsatish uchun URL — avval tashqi havola, bo'lmasa yuklangan fayl."""
+        if self.external_url:
+            return self.external_url
+        if self.image:
+            try:
+                return self.image.url
+            except ValueError:
+                return ""
+        return ""

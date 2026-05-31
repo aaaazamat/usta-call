@@ -36,6 +36,9 @@ python manage.py migrate --noinput
 echo "==> Boshlang'ich katalog (kategoriyalar, hududlar)..."
 python manage.py seed_catalog || echo "seed_catalog skipped"
 
+echo "==> Ustalar portfolio rasmlari (internet, idempotent)..."
+python manage.py seed_portfolio || echo "seed_portfolio skipped"
+
 echo "==> AI orqali katalog tarjimasi (uz -> ru, kk)..."
 # Faqat tarjimasiz yozuvlar uchun ishlaydi (skip if already translated).
 # Gemini API xatosi bo'lsa ham deploy davom etadi (|| true).

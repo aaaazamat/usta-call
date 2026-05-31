@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from apps.common.permissions import IsClient, IsMaster
-from apps.orders.models import OrderStatus
+from apps.orders.models import Order, OrderStatus
 
 from .models import Review
 from .serializers import MasterReplySerializer, ReviewCreateSerializer, ReviewSerializer
@@ -43,11 +43,35 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return ReviewSerializer
 
     def get_permissions(self):
-        if self.action in ("create", "destroy"):
+        if self.action in ("create", "destroy", "eligible"):
             return [IsAuthenticated(), IsClient()]
         if self.action == "reply":
             return [IsAuthenticated(), IsMaster()]
         return [AllowAny()]
+
+    @action(detail=False, methods=["get"], url_path="eligible")
+    def eligible(self, request):
+        """Joriy mijoz shu usta uchun sharh yoza oladimi?
+
+        Faqat shu usta bilan YAKUNLANGAN va hali sharhsiz buyurtmasi bo'lgan
+        mijoz sharh yoza oladi. Mos buyurtmalar ro'yxati qaytariladi —
+        frontend formani shu asosda ko'rsatadi.
+        """
+        master_id = request.query_params.get("master")
+        if not master_id:
+            return Response({"detail": "master parametri kerak"}, status=400)
+
+        orders = (
+            Order.objects.filter(
+                client=request.user,
+                selected_master_id=master_id,
+                status=OrderStatus.COMPLETED,
+                review__isnull=True,  # hali sharh yozilmagan
+            )
+            .order_by("-completed_at", "-created_at")
+        )
+        data = [{"order_id": o.id, "title": o.title} for o in orders]
+        return Response({"can_review": len(data) > 0, "orders": data})
 
     def create(self, request, *args, **kwargs):
         ser = ReviewCreateSerializer(data=request.data)

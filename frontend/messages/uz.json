@@ -329,7 +329,13 @@
       "portfolioEmpty": "Hali portfolio elementlari qo'shilmagan",
       "masterReply": "Usta javobi",
       "client": "Mijoz",
-      "reviewImage": "Sharh rasmi"
+      "reviewImage": "Sharh rasmi",
+      "reviewWriteTitle": "Sharh qoldiring",
+      "reviewPlaceholder": "Usta haqida fikringizni yozing (ixtiyoriy)...",
+      "reviewSubmit": "Sharh yuborish",
+      "reviewSubmitting": "Yuborilmoqda...",
+      "reviewThanks": "Rahmat! Sharhingiz qo'shildi.",
+      "reviewPickRating": "Iltimos, baho (yulduz) tanlang"
     }
   },
   "orders": {

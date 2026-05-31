@@ -329,7 +329,13 @@
       "portfolioEmpty": "Элементы портфолио пока не добавлены",
       "masterReply": "Ответ мастера",
       "client": "Клиент",
-      "reviewImage": "Фото отзыва"
+      "reviewImage": "Фото отзыва",
+      "reviewWriteTitle": "Оставьте отзыв",
+      "reviewPlaceholder": "Напишите ваше мнение о мастере (необязательно)...",
+      "reviewSubmit": "Отправить отзыв",
+      "reviewSubmitting": "Отправка...",
+      "reviewThanks": "Спасибо! Ваш отзыв добавлен.",
+      "reviewPickRating": "Пожалуйста, выберите оценку (звёзды)"
     }
   },
   "orders": {

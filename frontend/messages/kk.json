@@ -329,7 +329,13 @@
       "portfolioEmpty": "Hálishe portfolio elementleri qosılmaǵan",
       "masterReply": "Usta juwabı",
       "client": "Klient",
-      "reviewImage": "Pikir súwreti"
+      "reviewImage": "Pikir súwreti",
+      "reviewWriteTitle": "Пікір қалдырыңыз",
+      "reviewPlaceholder": "Шебер туралы пікіріңізді жазыңыз (міндетті емес)...",
+      "reviewSubmit": "Пікір жіберу",
+      "reviewSubmitting": "Жіберілуде...",
+      "reviewThanks": "Рахмет! Пікіріңіз қосылды.",
+      "reviewPickRating": "Бағаны (жұлдыздарды) таңдаңыз"
     }
   },
   "orders": {

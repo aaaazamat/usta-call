@@ -24,39 +24,36 @@ export function PortfolioGallery({ items }: { items: PortfolioItem[] }) {
 
   return (
     <>
-      <div className="grid sm:grid-cols-2 gap-6">
+      <div className="space-y-8">
         {items.map((item) => (
           <div key={item.id} className="rounded-xl border overflow-hidden bg-card">
             {item.images.length > 0 && (
-              <div className="grid grid-cols-3 gap-0.5 aspect-[3/2] bg-muted">
-                {item.images.slice(0, 3).map((img, idx) => (
+              // Barcha rasmlar ekran bo'ylab yoyiladi (responsive: mobil 2, planshet 3,
+              // laptop 4, katta ekran 6 ustun). "+N" overlay yo'q — hammasi ko'rinadi.
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-1.5 p-1.5">
+                {item.images.map((img, idx) => (
                   <button
                     key={img.id}
                     type="button"
                     onClick={() => setLightbox({ item, index: idx })}
-                    className="relative overflow-hidden bg-muted hover:opacity-90 transition"
+                    className="group relative aspect-square overflow-hidden rounded-lg bg-muted hover:opacity-95 transition"
                   >
                     <Image
                       src={img.image}
                       alt={item.title}
                       fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 16vw"
                       unoptimized
                     />
-                    {idx === 2 && item.images.length > 3 && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white font-medium">
-                        +{item.images.length - 3}
-                      </div>
-                    )}
                   </button>
                 ))}
               </div>
             )}
-            <div className="p-4">
+            <div className="p-4 pt-2">
               <h3 className="font-medium">{item.title}</h3>
               {item.description && (
-                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                <p className="text-sm text-muted-foreground mt-1">
                   {item.description}
                 </p>
               )}

@@ -49,7 +49,15 @@ class MasterViewSet(viewsets.ReadOnlyModelViewSet):
 
     permission_classes = [AllowAny]
     filterset_class = MasterFilter
-    search_fields = ("user__full_name", "bio", "skills__name", "categories__name")
+    # Parler: name/bio tarjima jadvallarida — qidiruv yo'llari translations orqali.
+    # Qidiriladi: ism-familiya, telefon, kasbi (kategoriya), ko'nikma, o'zi haqida.
+    search_fields = (
+        "user__full_name",
+        "user__phone",
+        "translations__bio",
+        "skills__translations__name",
+        "categories__translations__name",
+    )
     ordering_fields = ("rating_cache", "reviews_count_cache", "completed_orders_cache", "created_at")
     ordering = ("-rating_cache", "-reviews_count_cache")
 
@@ -58,6 +66,7 @@ class MasterViewSet(viewsets.ReadOnlyModelViewSet):
             MasterProfile.objects.filter(is_approved=True, user__is_active=True)
             .select_related("user")
             .prefetch_related("categories", "skills", "regions")
+            .distinct()  # M2M + tarjima join'lari dublikat bermasligi uchun
         )
         if self.action == "retrieve":
             qs = qs.prefetch_related("portfolio__images")

@@ -33,6 +33,9 @@ for lang in ['uz', 'kk', 'ru']:
 echo "==> Database migratsiyalari..."
 python manage.py migrate --noinput
 
+echo "==> Admin (superuser) — env'dan yaratish/parol yangilash..."
+python manage.py ensure_superuser || echo "ensure_superuser skipped"
+
 echo "==> Boshlang'ich katalog (kategoriyalar, hududlar)..."
 python manage.py seed_catalog || echo "seed_catalog skipped"
 

@@ -219,6 +219,11 @@ AI_PROVIDER = env("AI_PROVIDER", default="gemini")  # gemini|anthropic|openai|ke
 ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", default="")
 OPENAI_API_KEY = env("OPENAI_API_KEY", default="")
 GEMINI_API_KEY = env("GEMINI_API_KEY", default="")
+# Bir nechta Gemini kaliti (vergul bilan): biri limitga (429) yetsa keyingisiga o'tadi.
+# GEMINI_API_KEYS="kalit1,kalit2" yoki GEMINI_API_KEY + GEMINI_API_KEYS aralash bo'lishi mumkin.
+GEMINI_API_KEYS = [k.strip() for k in env("GEMINI_API_KEYS", default="").split(",") if k.strip()]
+if GEMINI_API_KEY and GEMINI_API_KEY not in GEMINI_API_KEYS:
+    GEMINI_API_KEYS.insert(0, GEMINI_API_KEY)
 AI_MODEL_ANTHROPIC = env("AI_MODEL_ANTHROPIC", default="claude-opus-4-7")
 AI_MODEL_OPENAI = env("AI_MODEL_OPENAI", default="gpt-4o-mini")
 AI_MODEL_GEMINI = env("AI_MODEL_GEMINI", default="gemini-2.0-flash")

@@ -92,16 +92,24 @@ def _analyze_openai(text: str) -> dict:
     return json.loads(resp.choices[0].message.content)
 
 
+def _gemini_keys() -> list[str]:
+    """Mavjud Gemini kalitlari (bir nechta bo'lsa — navbat bilan ishlatiladi)."""
+    keys = list(getattr(settings, "GEMINI_API_KEYS", []) or [])
+    if not keys and settings.GEMINI_API_KEY:
+        keys = [settings.GEMINI_API_KEY]
+    return keys
+
+
 def _analyze_gemini(text: str) -> dict:
-    """Google Gemini API — bepul tier yetarli (kuniga 1500 so'rov, daqiqada 15)."""
+    """Google Gemini API — bir nechta kalit bilan.
+
+    Bitta kalit limitga (429 — quota tugadi) yoki 403 (yaroqsiz) ga uchrasa,
+    avtomatik keyingi kalitga o'tadi. Barcha kalitlar tugasa — xato (keyword
+    fallback'ga o'tadi).
+    """
     import httpx
 
     model = settings.AI_MODEL_GEMINI
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-        f"?key={settings.GEMINI_API_KEY}"
-    )
-
     body = {
         "system_instruction": {"parts": [{"text": _build_system_prompt()}]},
         "contents": [{"parts": [{"text": text}]}],
@@ -114,13 +122,39 @@ def _analyze_gemini(text: str) -> dict:
         },
     }
 
-    with httpx.Client(timeout=20) as client:
-        resp = client.post(url, json=body)
-        resp.raise_for_status()
-        data = resp.json()
+    keys = _gemini_keys()
+    if not keys:
+        raise RuntimeError("Gemini kaliti yo'q")
 
-    raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
-    return _parse_json_response(raw_text)
+    last_exc: Exception | None = None
+    for idx, key in enumerate(keys, start=1):
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}"
+            f":generateContent?key={key}"
+        )
+        try:
+            with httpx.Client(timeout=20) as client:
+                resp = client.post(url, json=body)
+            # 429 = limit/quota tugadi, 403 = yaroqsiz/bloklangan → keyingi kalit
+            if resp.status_code in (429, 403):
+                logger.warning(
+                    "Gemini kalit #%s ishlamadi (HTTP %s) — keyingi kalitga o'tamiz",
+                    idx, resp.status_code,
+                )
+                last_exc = httpx.HTTPStatusError(
+                    f"status {resp.status_code}", request=resp.request, response=resp
+                )
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            raw_text = data["candidates"][0]["content"]["parts"][0]["text"]
+            return _parse_json_response(raw_text)
+        except Exception as exc:  # noqa: BLE001 — keyingi kalitni sinaymiz
+            last_exc = exc
+            logger.warning("Gemini kalit #%s xatosi: %s — keyingisini sinaymiz", idx, exc)
+            continue
+
+    raise last_exc or RuntimeError("Barcha Gemini kalitlari ishlamadi")
 
 
 # Kasb (kategoriya slug) → o'zbekcha/ruscha keng tarqalgan kalit so'zlar.
@@ -234,8 +268,9 @@ def _pick_provider() -> str:
     Hech qaysi kalit yo'q bo'lsa — keyword fallback.
     """
     preferred = (settings.AI_PROVIDER or "").lower()
+    gemini_key = ",".join(_gemini_keys())  # bironta kalit bo'lsa — truthy
     candidates: list[tuple[str, str]] = [
-        ("gemini", settings.GEMINI_API_KEY),
+        ("gemini", gemini_key),
         ("anthropic", settings.ANTHROPIC_API_KEY),
         ("openai", settings.OPENAI_API_KEY),
     ]

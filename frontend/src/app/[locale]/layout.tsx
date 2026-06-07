@@ -25,6 +25,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://usta-call.vercel.app"
+).replace(/\/$/, "");
+
 export async function generateMetadata({
   params,
 }: {
@@ -32,9 +36,36 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
+  const title = `usta-call — ${t("heroTitle1")} ${t("heroTitleAccent")} ${t("heroTitle2")}`.trim();
+  const description = t("heroSubtitle");
+
   return {
-    title: `usta-call — ${t("heroTitle1")} ${t("heroTitleAccent")} ${t("heroTitle2")}`.trim(),
-    description: t("heroSubtitle"),
+    metadataBase: new URL(SITE_URL),
+    title: { default: title, template: "%s · usta-call" },
+    description,
+    applicationName: "usta-call",
+    keywords: [
+      "usta", "usta topish", "usta call", "santexnik", "elektrik", "quruvchi",
+      "bo'yoqchi", "klimatchi", "avto usta", "tikuvchi", "uy ta'miri",
+      "Toshkent usta", "O'zbekiston usta", "master", "remont", " remont ustasi",
+    ],
+    alternates: {
+      canonical: `/${locale}`,
+      languages: { uz: "/uz", ru: "/ru", kk: "/kk" },
+    },
+    openGraph: {
+      type: "website",
+      siteName: "usta-call",
+      url: `${SITE_URL}/${locale}`,
+      title,
+      description,
+      locale,
+    },
+    twitter: { card: "summary_large_image", title, description },
+    robots: { index: true, follow: true },
+    verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+      ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
+      : undefined,
   };
 }
 

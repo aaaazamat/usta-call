@@ -123,33 +123,96 @@ def _analyze_gemini(text: str) -> dict:
     return _parse_json_response(raw_text)
 
 
+# Kasb (kategoriya slug) → o'zbekcha/ruscha keng tarqalgan kalit so'zlar.
+# Gemini ishlamay qolsa ham kasbni matndan aniqlash uchun himoya qatlami.
+CATEGORY_HINTS: dict[str, list[str]] = {
+    "santexnik": [
+        "santexnik", "jomrak", "kran", "quvur", "truba", "suv", "kanalizatsiya",
+        "vannaxona", "smesitel", "unitaz", "rakovina", "kanalizatsiya", "oqava",
+        "isitish", "radiator", "vodoprovod",
+    ],
+    "elektrik": [
+        "elektrik", "elektr", "simchi", "rozetka", "lyustra", "avtomat", "provod",
+        "sim", "vyklyuchatel", "vikluchatel", "svet", "lampa", "shchitok", "shitok",
+        "elektr toki", "elektr montaj", "provodka",
+    ],
+    "quruvchi": [
+        "quruvchi", "qurilish", "gisht", "g'isht", "beton", "suvoq", "shtukaturka",
+        "pol", "plitka", "kafel", "devor", "fundament", "styajka", "remont",
+        "tamirlash", "ta'mirlash",
+    ],
+    "boyoqchi": [
+        "boyoqchi", "bo'yoq", "boyoq", "oboy", "malyar", "pokraska", "shpaklyovka",
+        "devor bo'yash", "oq qilash", "oqlash", "bezak",
+    ],
+    "klimatchi": [
+        "klimatchi", "konditsioner", "kondizioner", "klimat", "ventilyatsiya",
+        "sovutkich", "split", "muzlatkich",
+    ],
+    "avto-usta": [
+        "avto", "mashina", "avtomobil", "dvigatel", "mator", "tormoz", "moy",
+        "diagnostika", "remont avto", "avtoservis", "matarist",
+    ],
+    "kompyuter-ustasi": [
+        "kompyuter", "komputer", "noutbuk", "noutbuk", "windows", "virus",
+        "dastur", "pc", "monitor", "klaviatura", "tizim",
+    ],
+    "tikuvchi": [
+        "tikuvchi", "tikuv", "tikish", "libos", "kiyim", "mato", "ko'ylak",
+        "shim", "tuzatish", "atelye",
+    ],
+    "tozalash-xizmati": [
+        "tozalash", "tozalik", "yuvish", "uborka", "kvartira tozalash",
+        "deraza yuvish", "gilam tozalash",
+    ],
+    "bogbon": [
+        "bog'bon", "bogbon", "bog'", "daraxt", "maysa", "sug'orish", "gul",
+        "o'simlik", "landshaft",
+    ],
+    "mebelchi": [
+        "mebel", "mebelchi", "shkaf", "stol", "stul", "yog'och", "divan",
+        "garderob", "kuxnya mebel",
+    ],
+}
+
+
+def _category_from_keywords(text_low: str) -> str | None:
+    """Matndagi kalit so'zlar bo'yicha eng mos kasb slug'ini topadi."""
+    best_slug, best_hits = None, 0
+    for slug, words in CATEGORY_HINTS.items():
+        hits = sum(1 for w in words if w in text_low)
+        if hits > best_hits:
+            best_slug, best_hits = slug, hits
+    return best_slug
+
+
 def _analyze_keyword_fallback(text: str) -> dict:
-    """API kalit yo'q bo'lsa — alias va kategoriya nomi bo'yicha oddiy keyword match."""
+    """API kalit/aloqasi yo'q bo'lsa — kalit so'z bo'yicha kasb va ko'nikma aniqlash."""
     text_low = text.lower()
 
-    # Skill aliases + names
+    # 1) Ko'nikmalar — nom, slug va aliaslar bo'yicha
     matched_skills: list[Skill] = []
     for skill in Skill.objects.select_related("category"):
-        terms = [skill.name.lower(), skill.slug] + [a.lower() for a in (skill.aliases or [])]
-        if any(t in text_low for t in terms if t):
+        name = (skill.safe_translation_getter("name", any_language=True) or "").lower()
+        terms = [name, skill.slug] + [a.lower() for a in (skill.aliases or [])]
+        if any(t and t in text_low for t in terms):
             matched_skills.append(skill)
 
+    # 2) Kasb (kategoriya): avval kalit so'z lug'ati, bo'lmasa ko'nikmaning kasbi
     category = None
-    if matched_skills:
-        # Eng ko'p uchragan kategoriya
+    slug = _category_from_keywords(text_low)
+    if slug:
+        category = Category.objects.filter(slug=slug).first()
+    if category is None and matched_skills:
         from collections import Counter
-        counter = Counter(s.category_id for s in matched_skills)
-        category = Category.objects.filter(id=counter.most_common(1)[0][0]).first()
-    else:
-        # Faqat kategoriya nomi bo'yicha
-        for cat in Category.objects.filter(is_active=True):
-            if cat.name.lower() in text_low or cat.slug in text_low:
-                category = cat
-                break
+
+        counter = Counter(s.category_id for s in matched_skills if s.category_id)
+        if counter:
+            category = Category.objects.filter(id=counter.most_common(1)[0][0]).first()
 
     urgency_map = [
-        ("tez", "high"), ("zudlik", "emergency"), ("hozir", "high"),
-        ("favqulodda", "emergency"), ("shoshilinch emas", "low"),
+        ("zudlik", "emergency"), ("favqulodda", "emergency"),
+        ("tez", "high"), ("hozir", "high"), ("shoshilinch emas", "low"),
     ]
     urgency = "normal"
     for kw, level in urgency_map:

@@ -29,9 +29,26 @@ def analyze_order(order_id: int) -> dict:
     logger.info("Order %s AI analiz: %s", order_id, analysis.raw)
 
     with transaction.atomic():
-        # Kategoriya — agar mijoz tanlamagan bo'lsa
-        if not order.category_id and analysis.category_slug:
-            cat = Category.objects.filter(slug=analysis.category_slug).first()
+        # Avval ko'nikmalarni yozamiz (kasbni ulardan ham aniqlash uchun kerak)
+        matched_skills = []
+        if analysis.skill_slugs:
+            matched_skills = list(Skill.objects.filter(slug__in=analysis.skill_slugs))
+            order.ai_extracted_skills.set(matched_skills)
+
+        # Kategoriya (kasb) — mijoz tanlamagan bo'lsa AI aniqlaydi.
+        # 1) AI to'g'ridan-to'g'ri kategoriya bergan bo'lsa — o'shani.
+        # 2) Bermasa, lekin ko'nikma topilgan bo'lsa — eng ko'p uchragan
+        #    ko'nikmaning kategoriyasini olamiz (kasb deyarli doim aniqlanadi).
+        if not order.category_id:
+            cat = None
+            if analysis.category_slug:
+                cat = Category.objects.filter(slug=analysis.category_slug).first()
+            if cat is None and matched_skills:
+                from collections import Counter
+
+                counter = Counter(s.category_id for s in matched_skills if s.category_id)
+                if counter:
+                    cat = Category.objects.filter(id=counter.most_common(1)[0][0]).first()
             if cat:
                 order.category = cat
 
@@ -41,11 +58,7 @@ def analyze_order(order_id: int) -> dict:
             order.urgency = analysis.urgency
         order.save(update_fields=["category", "ai_summary", "ai_processed_at", "urgency", "updated_at"])
 
-        if analysis.skill_slugs:
-            skills = Skill.objects.filter(slug__in=analysis.skill_slugs)
-            order.ai_extracted_skills.set(skills)
-
-        # Matching
+        # Matching — kasb-birinchi, 0..100 ball
         scored = rank_masters_for_order(order)
         OrderMatch.objects.filter(order=order).delete()
         OrderMatch.objects.bulk_create([
@@ -53,6 +66,7 @@ def analyze_order(order_id: int) -> dict:
                 order=order,
                 master=s.master,
                 score=s.score,
+                category_score=s.category,
                 skill_score=s.skill,
                 region_score=s.region,
                 rating_score=s.rating,

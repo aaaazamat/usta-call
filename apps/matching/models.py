@@ -20,6 +20,7 @@ class OrderMatch(TimeStampedModel):
     reason = models.CharField(max_length=300, blank=True)
 
     # Breakdown — debug uchun
+    category_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     skill_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     region_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     rating_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)

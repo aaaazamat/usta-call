@@ -310,7 +310,8 @@ function MatchCard({
   const [bookOpen, setBookOpen] = useState(false);
   const scoreNum = Number(score);
   const rating = Number(master.rating_cache);
-  const scorePercent = Math.round(scoreNum * 100);
+  // Ball backend'da allaqachon 0..100 shkalada — to'g'ridan-to'g'ri foiz sifatida
+  const scorePercent = Math.min(100, Math.max(0, Math.round(scoreNum)));
 
   return (
     <div className="rounded-xl border bg-card p-5">
